@@ -1,0 +1,6 @@
+[report]
+include =
+    src/OBS/*
+omit =
+    */test*
+    */upgrades/*
