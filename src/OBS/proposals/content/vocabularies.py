@@ -1,3 +1,6 @@
+from plone import api
+from zope.interface import provider
+from zope.schema.interfaces import IVocabularyFactory
 from zope.schema.vocabulary import SimpleTerm
 from zope.schema.vocabulary import SimpleVocabulary
 
@@ -7,49 +10,33 @@ def makeVocabFromList(l):
                           for item in l])
    return voc
 
+
+
 yesno_list = ['Yes', 'No']
-block_list = [
-   '2026_D01',
-   '2026_L01',
-   '2026_D02',
-   '2026_L02',
-   '2026_D03',
-   '2026_L03',
-   '2026_D04',
-   '2026_L04',
-   '2026_D05',
-   '2026_L05',
-   '2026_D06',
-   '2026_L06',
-]
-moon_list = ['|{}|'.format(i) for i in range(14,0,-1)]
-moon_list += ['{:+d}'.format(i) for i in range(-14, 15)]
-
-tel_list = ['Baade', 'Clay', 'Swope']
-
-inst_list = [
-'Baade:IMACS:f/2',
-'Baade:IMACS:f/4',
-'Baade:IMACS:GISMO',
-'Baade:IMACS:Rosie-IFU',
-'Baade:FourStar',
-'Baade:FIRE',
-'Baade:MagE',
-'Baade:LLAMAS',
-'Clay:MIKE',
-'Clay:LDSS3-C',
-'Clay:PFS',
-'Clay:M2FS',
-'Clay:IFU-M',
-'Clay:WINERED',
-'Clay:MegaCam',
-'Clay:MagAO-X',
-'Clay:Lightspeed',
-'Swope:Direct',
-]
 
 YESNO = makeVocabFromList(yesno_list)
-BLOCKNAMES = makeVocabFromList(block_list)
-MOONPHASES = makeVocabFromList(moon_list)
-TELESCOPES = makeVocabFromList(tel_list)
-INSTRUMENTS = makeVocabFromList(inst_list)
+
+@provider(IVocabularyFactory)
+def RUNS(context):
+   runs = api.portal.get_registry_record("proposals.run_vocab")
+   return makeVocabFromList(runs.split('\n'))
+
+@provider(IVocabularyFactory)
+def MOONPHASES(context):
+   moons = api.portal.get_registry_record("proposals.moon_vocab")
+   return makeVocabFromList(moons.split('\n'))
+
+@provider(IVocabularyFactory)
+def TELESCOPES(context):
+   telescopes = api.portal.get_registry_record("proposals.telescope_vocab")
+   return (makeVocabFromList(telescopes.split('\n')))
+
+@provider(IVocabularyFactory)
+def INSTRUMENTS(context):
+   instruments = api.portal.get_registry_record("proposals.instrument_vocab")
+   return makeVocabFromList(instruments.split('\n'))
+
+@provider(IVocabularyFactory)
+def SERVICE(context):
+   services = api.portal.get_registry_record("proposals.service_vocab")
+   return makeVocabFromList(services.split('\n'))

@@ -28,5 +28,21 @@
       factory="OBS.proposals.browser.controlpanel.ProposalsRegistryConfigletPanel"
       name="proposals-controlpanel" />
 
+  <utility
+      name="proposals.RUNS"
+      component="OBS.proposals.content.vocabularies.RUNS"/>
+  <utility
+      name="proposals.MOONPHASES"
+      component="OBS.proposals.content.vocabularies.MOONPHASES"/>
+  <utility
+      name="proposals.TELESCOPES"
+      component="OBS.proposals.content.vocabularies.TELESCOPES"/>
+  <utility
+      name="proposals.INSTRUMENTS"
+      component="OBS.proposals.content.vocabularies.INSTRUMENTS"/>
+  <utility
+      name="proposals.SERVICE"
+      component="OBS.proposals.content.vocabularies.SERVICE"/>
+
 
 </configure>

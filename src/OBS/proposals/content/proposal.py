@@ -12,35 +12,37 @@ from zope.interface import implementer
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.blockdatagridfield import \
+    BlockDataGridFieldWidgetFactory
 from collective.z3cform.datagridfield.row import DictRow
 
-from .vocabularies import YESNO,BLOCKNAMES,INSTRUMENTS,TELESCOPES,\
-                          MOONPHASES
+from .vocabularies import YESNO
+
 
 class IObservingRunSchema(model.Schema):
    """One row of the observing runs"""
-   project = schema.Int(
-      title='Project',
-      required=True,
-      default=1
-   )
-   directives.widget("project", TextWidget, size=5)
+   #project = schema.Int(
+   #   title='Project',
+   #   required=True,
+   #   default=1
+   #)
+   #directives.widget("project", TextWidget, size=5)
 
    preferred = schema.Choice(
       title='Preferred',
-      vocabulary=BLOCKNAMES,
+      vocabulary="proposals.RUNS",
       required=True
    )
 
    fromblock = schema.Choice(
       title='Preferred',
-      vocabulary=BLOCKNAMES,
+      vocabulary="proposals.RUNS",
       required=True
    )
 
    toblock = schema.Choice(
       title='Preferred',
-      vocabulary=BLOCKNAMES,
+      vocabulary="proposals.RUNS",
       required=True,
    )
 
@@ -52,25 +54,25 @@ class IObservingRunSchema(model.Schema):
 
    moon = schema.Choice(
       title='Moon',
-      vocabulary=MOONPHASES,
+      vocabulary="proposals.MOONPHASES",
       required=True,
    )   
 
    telescope = schema.Choice(
        title='Telescope',
-       vocabulary=TELESCOPES,
+       vocabulary="proposals.TELESCOPES",
        required=True
    )
 
    inst1 = schema.Choice(
        title='instr. one',
-       vocabulary=INSTRUMENTS,
+       vocabulary="proposals.INSTRUMENTS",
        required=True
    )
 
-   inst1 = schema.Choice(
-       title='instr. one',
-       vocabulary=INSTRUMENTS,
+   inst2 = schema.Choice(
+       title='instr. two',
+       vocabulary="proposals.INSTRUMENTS",
        required=True
    )
 
@@ -92,6 +94,19 @@ class IObservingRunSchema(model.Schema):
        title='Observers',
        required=True,
    )
+
+class IProjectSchema(model.Schema):
+   proj_title = schema.TextLine(
+       title='Project Title',
+       required=True,
+   )
+
+   coIs = schema.TextLine(
+       title="Co-Investigators",
+       required=True,
+   )
+
+
 
 
 class IProposal(model.Schema):
@@ -166,15 +181,25 @@ class IProposal(model.Schema):
         required=False,
     )
 
+    projects = schema.List(
+        title="Projects",
+        value_type=DictRow(
+            title="Project List",
+            schema=IProjectSchema,
+        )
+    )
+    directives.widget("projects", DataGridFieldFactory,
+                      auto_append=False)
+
     runs = schema.List(
         title="Runs",
         value_type=DictRow(
-            title="Run",
-            schema=IObservingRunSchema,
+           title="Run",
+           schema=IObservingRunSchema,
         )
     )
     directives.widget("runs", DataGridFieldFactory,
-                      auto_append=False)
+                     auto_append=False)
 
 
 @implementer(IProposal)
