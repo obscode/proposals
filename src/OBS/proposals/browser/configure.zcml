@@ -17,5 +17,16 @@
       type="plone"
       directory="static"
       />
+  <browser:page
+      name="proposals-controlpanel"
+      for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+      class=".controlpanel.ProposalsControlPanelFormWrapper"
+      permission="cmf.ManagePortal"
+      layer="OBS.proposals.interfaces.IObsProposalsLayer"
+      />
+  <adapter
+      factory="OBS.proposals.browser.controlpanel.ProposalsRegistryConfigletPanel"
+      name="proposals-controlpanel" />
+
 
 </configure>
