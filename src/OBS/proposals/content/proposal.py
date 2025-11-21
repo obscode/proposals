@@ -4,11 +4,94 @@ from plone.dexterity.content import Container
 from plone.schema.email import Email
 from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
-from z3c.form.browser.checkbox import CheckBoxFieldWidget
-from z3c.form.browser.radio import RadioFieldWidget
+from z3c.form.browser.text import TextWidget
+#from z3c.form.browser.checkbox import CheckBoxFieldWidget
+#from z3c.form.browser.radio import RadioFieldWidget
 from zope.interface import implementer
-from zope.schema.vocabulary import SimpleTerm
-from zope.schema.vocabulary import SimpleVocabulary
+#from zope.schema.interfaces import IContextSourceBinder
+
+
+from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
+from collective.z3cform.datagridfield.row import DictRow
+
+from .vocabularies import YESNO,BLOCKNAMES,INSTRUMENTS,TELESCOPES,\
+                          MOONPHASES
+
+class IObservingRunSchema(model.Schema):
+   """One row of the observing runs"""
+   project = schema.Int(
+      title='Project',
+      required=True,
+      default=1
+   )
+   directives.widget("project", TextWidget, size=5)
+
+   preferred = schema.Choice(
+      title='Preferred',
+      vocabulary=BLOCKNAMES,
+      required=True
+   )
+
+   fromblock = schema.Choice(
+      title='Preferred',
+      vocabulary=BLOCKNAMES,
+      required=True
+   )
+
+   toblock = schema.Choice(
+      title='Preferred',
+      vocabulary=BLOCKNAMES,
+      required=True,
+   )
+
+   nights = schema.Int(
+      title='Nights',
+      required=True,
+   )
+   directives.widget("nights", TextWidget, size=5)
+
+   moon = schema.Choice(
+      title='Moon',
+      vocabulary=MOONPHASES,
+      required=True,
+   )   
+
+   telescope = schema.Choice(
+       title='Telescope',
+       vocabulary=TELESCOPES,
+       required=True
+   )
+
+   inst1 = schema.Choice(
+       title='instr. one',
+       vocabulary=INSTRUMENTS,
+       required=True
+   )
+
+   inst1 = schema.Choice(
+       title='instr. one',
+       vocabulary=INSTRUMENTS,
+       required=True
+   )
+
+   service = schema.Choice(
+       title='Service',
+       required=True,
+       vocabulary=YESNO,
+       default='No',
+   )
+
+   in_person = schema.Choice(
+       title='In Person',
+       required=True,
+       vocabulary=YESNO,
+       default='No',
+   )
+
+   observers = schema.TextLine(
+       title='Observers',
+       required=True,
+   )
 
 
 class IProposal(model.Schema):
@@ -82,6 +165,16 @@ class IProposal(model.Schema):
                     'allocated over the previous 3 years',
         required=False,
     )
+
+    runs = schema.List(
+        title="Runs",
+        value_type=DictRow(
+            title="Run",
+            schema=IObservingRunSchema,
+        )
+    )
+    directives.widget("runs", DataGridFieldFactory,
+                      auto_append=False)
 
 
 @implementer(IProposal)
