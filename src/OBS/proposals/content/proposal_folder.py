@@ -16,7 +16,7 @@ class IProposalFolder(model.Schema):
 
     semester = schema.TextLine(
         title='Semester (e.g., 2025B, 2026A, ...',
-        description='The proposals' semester',
+        description='The proposals semester',
         required=True,
     )
     is_tbd = schema.Bool(
