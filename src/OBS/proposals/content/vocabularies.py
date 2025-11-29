@@ -16,6 +16,8 @@ yesno_list = ['Yes', 'No']
 
 YESNO = makeVocabFromList(yesno_list)
 
+NUMBERS = makeVocabFromList(['1','2','3','4','5'])
+
 @provider(IVocabularyFactory)
 def RUNS(context):
    runs = api.portal.get_registry_record("proposals.run_vocab")

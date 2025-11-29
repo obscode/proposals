@@ -17,6 +17,7 @@
       type="plone"
       directory="static"
       />
+
   <browser:page
       name="proposals-controlpanel"
       for="Products.CMFPlone.interfaces.IPloneSiteRoot"
@@ -24,6 +25,22 @@
       permission="cmf.ManagePortal"
       layer="OBS.proposals.interfaces.IObsProposalsLayer"
       />
+
+  <adapter
+      for="Products.CMFCore.interfaces.IFolderish
+         zope.publisher.interfaces.browser.IDefaultBrowserLayer
+         plone.dexterity.interfaces.IDexterityFTI"
+      provides="zope.publisher.interfaces.browser.IBrowserPage"
+      factory="OBS.proposals.content.proposal.AddView"
+      name="proposal"
+    />
+  <class class="OBS.proposals.content.proposal.AddView">
+    <require
+        permission="cmf.AddPortalContent"
+        interface="zope.publisher.interfaces.browser.IBrowserPage"
+        />
+  </class>"
+
   <adapter
       factory="OBS.proposals.browser.controlpanel.ProposalsRegistryConfigletPanel"
       name="proposals-controlpanel" />

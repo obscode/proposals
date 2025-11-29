@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<registry
+    xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain="OBS.proposals">
+
+   <records
+       prefix="plone.resources/proposals-fixforms"
+       interface="Products.CMFPlone.interfaces.IResourceRegistry">
+     <value key="js">++plone++OBS.proposals/datagridhacks.js</value>
+   </records>
+
+</registry>

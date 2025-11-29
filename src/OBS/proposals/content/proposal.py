@@ -1,14 +1,14 @@
 from plone import schema
 from plone.autoform import directives
 from plone.dexterity.content import Container
+from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
 from plone.schema.email import Email
 from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
 from z3c.form.browser.text import TextWidget
-#from z3c.form.browser.checkbox import CheckBoxFieldWidget
-#from z3c.form.browser.radio import RadioFieldWidget
 from zope.interface import implementer
-#from zope.schema.interfaces import IContextSourceBinder
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from Products.CMFPlone.resources import add_resource_on_request
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
@@ -16,7 +16,7 @@ from collective.z3cform.datagridfield.blockdatagridfield import \
     BlockDataGridFieldWidgetFactory
 from collective.z3cform.datagridfield.row import DictRow
 
-from .vocabularies import YESNO
+from .vocabularies import YESNO,NUMBERS
 
 
 class IObservingRunSchema(model.Schema):
@@ -28,82 +28,101 @@ class IObservingRunSchema(model.Schema):
    #)
    #directives.widget("project", TextWidget, size=5)
 
+   project = schema.Choice(
+       title='Project',
+       vocabulary=NUMBERS,
+       required=False,
+       default='1',
+   )
    preferred = schema.Choice(
       title='Preferred',
       vocabulary="proposals.RUNS",
-      required=True
+      required=False
    )
 
    fromblock = schema.Choice(
-      title='Preferred',
+      title='From',
       vocabulary="proposals.RUNS",
-      required=True
+      required=False
    )
 
    toblock = schema.Choice(
-      title='Preferred',
+      title='To',
       vocabulary="proposals.RUNS",
-      required=True,
+      required=False,
    )
 
    nights = schema.Int(
       title='Nights',
-      required=True,
+      required=False,
    )
    directives.widget("nights", TextWidget, size=5)
 
    moon = schema.Choice(
       title='Moon',
       vocabulary="proposals.MOONPHASES",
-      required=True,
+      required=False,
    )   
 
    telescope = schema.Choice(
        title='Telescope',
        vocabulary="proposals.TELESCOPES",
-       required=True
+       required=False
    )
 
    inst1 = schema.Choice(
        title='instr. one',
        vocabulary="proposals.INSTRUMENTS",
-       required=True
+       required=False
    )
 
    inst2 = schema.Choice(
        title='instr. two',
        vocabulary="proposals.INSTRUMENTS",
-       required=True
+       required=False
    )
 
    service = schema.Choice(
        title='Service',
-       required=True,
+       required=False,
        vocabulary=YESNO,
        default='No',
    )
 
    in_person = schema.Choice(
        title='In Person',
-       required=True,
+       required=False,
        vocabulary=YESNO,
        default='No',
    )
 
    observers = schema.TextLine(
        title='Observers',
-       required=True,
+       required=False,
    )
 
 class IProjectSchema(model.Schema):
+   directives.mode(proj_number="display")
+   directives.widget("proj_number", TextWidget, size=5)
+   proj_number = schema.TextLine(
+       title = "Project",
+       required=False,
+       default='1',
+   )
+   priority = schema.Choice(
+       title = "Priority",
+       required=False,
+       vocabulary=NUMBERS,
+       default='1'
+   )
    proj_title = schema.TextLine(
        title='Project Title',
-       required=True,
+       required=False,
    )
 
    coIs = schema.TextLine(
        title="Co-Investigators",
-       required=True,
+       required=False,
    )
 
 
@@ -204,4 +223,28 @@ class IProposal(model.Schema):
 
 @implementer(IProposal)
 class Proposal(Container):
-    """Talk instance class"""
+    """Proposal instance class"""
+
+#### Forms ####
+
+class AddForm(DefaultAddForm):
+
+    template = ViewPageTemplateFile('myadd.pt')
+
+    def update(self):
+        super().update()
+
+    def updateWidgets(self):
+        super().updateWidgets()
+        print('***',type(self.widgets['projects'].columns[0]))
+
+class AddView(DefaultAddView):
+    form = AddForm
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ignoreRequiredOnExtract = True
+
+    def __call__(self):
+        add_resource_on_request(self.request, 'proposals-fixforms')
+        return super(AddView, self).__call__()
