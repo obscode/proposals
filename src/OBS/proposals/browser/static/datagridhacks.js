@@ -122,7 +122,7 @@ let handleDGFInsert = function(event, dgf, row) {
               let arr = allinst.options[j].value.split(":");
               let N = arr.length;
               let newstr = arr.slice(1,N).join(":").trim();
-              selects[i].options.add( new Option(newstr,newstr));
+              selects[i].options.add( new Option(newstr, allinst.options[j].value));
             }
           }
         }
