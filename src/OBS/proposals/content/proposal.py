@@ -1,5 +1,6 @@
 from plone import schema
 from plone.autoform import directives
+from plone import api
 from plone.dexterity.content import Container
 from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
 from plone.schema.email import Email
@@ -245,7 +246,18 @@ class AddForm(DefaultAddForm):
         super().updateWidgets()
     
     def create(self, data):
-        return super().create(data)
+        # override to give custom short name
+        member = api.user.get_current()
+
+        sname = member.getId()
+        semester = api.portal.get_registry_record("proposals.semester")
+        fname = sname+"_proposal"+semester.strip().lower()
+        
+        # Create object the usual way
+        obj = super().create(data)
+        obj.id = fname
+        
+        return obj
 
 class AddView(DefaultAddView):
     form = AddForm
