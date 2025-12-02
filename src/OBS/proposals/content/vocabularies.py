@@ -6,7 +6,7 @@ from zope.schema.vocabulary import SimpleVocabulary
 
 def makeVocabFromList(l):
    'Given a list of strings, make simple vocab'
-   voc = SimpleVocabulary([SimpleTerm(value=item, title=item) \
+   voc = SimpleVocabulary([SimpleTerm(value=item, token=item, title=item) \
                           for item in l])
    return voc
 
@@ -21,24 +21,29 @@ NUMBERS = makeVocabFromList(['1','2','3','4','5'])
 @provider(IVocabularyFactory)
 def RUNS(context):
    runs = api.portal.get_registry_record("proposals.run_vocab")
-   return makeVocabFromList(runs.split('\n'))
+   runs = [run.strip() for run in runs.split('\n')]
+   return makeVocabFromList(runs)
 
 @provider(IVocabularyFactory)
 def MOONPHASES(context):
    moons = api.portal.get_registry_record("proposals.moon_vocab")
-   return makeVocabFromList(moons.split('\n'))
+   moons = [moon.strip() for moon in moons.split('\n')]
+   return makeVocabFromList(moons)
 
 @provider(IVocabularyFactory)
 def TELESCOPES(context):
    telescopes = api.portal.get_registry_record("proposals.telescope_vocab")
-   return (makeVocabFromList(telescopes.split('\n')))
+   telescopes = [tel.strip() for tel in telescopes.split('\n')]
+   return makeVocabFromList(telescopes)
 
 @provider(IVocabularyFactory)
 def INSTRUMENTS(context):
    instruments = api.portal.get_registry_record("proposals.instrument_vocab")
-   return makeVocabFromList(instruments.split('\n'))
+   instruments = [inst.strip() for inst in instruments.split('\n')]
+   return makeVocabFromList(instruments)
 
 @provider(IVocabularyFactory)
 def SERVICE(context):
    services = api.portal.get_registry_record("proposals.service_vocab")
-   return makeVocabFromList(services.split('\n'))
+   services = [s.strip() for s in services.split('\n')]
+   return makeVocabFromList(services)

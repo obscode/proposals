@@ -53,9 +53,6 @@
           </tr>
        </table>
     </fieldset>
-    <script>
-    // placeholder
-    </script>
     <!-- Secondary fieldsets -->
     <tal:block condition="has_groups"
                tal:repeat="group groups"
@@ -113,4 +110,5 @@
       </fieldset>
     </tal:block>
   </metal:fields-slot>
+
 </metal:use>

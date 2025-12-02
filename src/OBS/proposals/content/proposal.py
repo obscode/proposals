@@ -37,19 +37,22 @@ class IObservingRunSchema(model.Schema):
    preferred = schema.Choice(
       title='Preferred',
       vocabulary="proposals.RUNS",
-      required=False
+      required=False,
+      #default='D01'
    )
 
    fromblock = schema.Choice(
       title='From',
       vocabulary="proposals.RUNS",
-      required=False
+      required=False,
+      #default='--'
    )
 
    toblock = schema.Choice(
       title='To',
       vocabulary="proposals.RUNS",
       required=False,
+      #default='--'
    )
 
    nights = schema.Int(
@@ -62,24 +65,28 @@ class IObservingRunSchema(model.Schema):
       title='Moon',
       vocabulary="proposals.MOONPHASES",
       required=False,
+      #default='--'
    )   
 
    telescope = schema.Choice(
        title='Telescope',
        vocabulary="proposals.TELESCOPES",
-       required=False
+       required=False,
+       #default='--'
    )
 
    inst1 = schema.Choice(
        title='instr. one',
        vocabulary="proposals.INSTRUMENTS",
-       required=False
+       required=False,
+       #default='--'
    )
 
    inst2 = schema.Choice(
        title='instr. two',
        vocabulary="proposals.INSTRUMENTS",
-       required=False
+       required=False,
+       #default='--'
    )
 
    service = schema.Choice(
@@ -236,7 +243,9 @@ class AddForm(DefaultAddForm):
 
     def updateWidgets(self):
         super().updateWidgets()
-        print('***',type(self.widgets['projects'].columns[0]))
+    
+    def create(self, data):
+        return super().create(data)
 
 class AddView(DefaultAddView):
     form = AddForm
@@ -248,3 +257,4 @@ class AddView(DefaultAddView):
     def __call__(self):
         add_resource_on_request(self.request, 'proposals-fixforms')
         return super(AddView, self).__call__()
+
