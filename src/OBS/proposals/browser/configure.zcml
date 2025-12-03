@@ -26,6 +26,15 @@
       layer="OBS.proposals.interfaces.IObsProposalsLayer"
       />
 
+  <!-- Custom view page -->
+  <browser:page
+      for="OBS.proposals.content.proposal.IProposal"
+      name="view"
+      class="OBS.proposals.content.proposal.View"
+      permission="zope2.View"
+      template="view.pt"
+      />
+      
   <adapter
       for="Products.CMFCore.interfaces.IFolderish
          zope.publisher.interfaces.browser.IDefaultBrowserLayer

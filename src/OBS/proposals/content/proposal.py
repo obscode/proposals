@@ -3,6 +3,7 @@ from plone.autoform import directives
 from plone import api
 from plone.dexterity.content import Container
 from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
+from plone.dexterity.browser.view import DefaultView
 from plone.schema.email import Email
 from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
@@ -232,6 +233,22 @@ class IProposal(model.Schema):
 @implementer(IProposal)
 class Proposal(Container):
     """Proposal instance class"""
+    
+    def get_runs(self, projnum):
+        '''Return list of runs for project number projnum'''
+        return [run for run in self.runs if run['project'] == str(projnum)]
+
+    def statusMessage(self):
+        '''Returns the current status of the proposal'''
+        return("Status good")
+
+    def status(self):
+        '''Returns True if proposal is ready for submission'''
+        return True
+
+    def Title(self):
+        '''Returns an appropriate title'''
+        return self.id
 
 #### Forms ####
 
@@ -269,4 +286,19 @@ class AddView(DefaultAddView):
     def __call__(self):
         add_resource_on_request(self.request, 'proposals-fixforms')
         return super(AddView, self).__call__()
+
+class View(DefaultView):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+    
+    def instrument(self, inst):
+        '''Given a complete instrument string in the form 
+           [telescope]:[instrument], return only instrument'''
+        if not inst:
+            return '--'
+        if ':' in inst:
+            return ':'.join(inst.split(':')[1:])
+        else:
+            return inst
+
 

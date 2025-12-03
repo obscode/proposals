@@ -1,0 +1,112 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      lang="en"
+      metal:use-macro="context/@@main_template/macros/master"
+      xml:lang="en"
+      i18n:domain="plone"
+>
+  <body>
+
+    <metal:main fill-slot="content-core">
+      <metal:content-core define-macro="content-core">
+
+        <div class="row" style="border: 2px solid #8cacbb; background-color: #dee7ec;padding: 2px;">
+           <aside class="col-12">
+              <div class="portalMessage">
+                 <pre style="margin-top: 1em;" tal:content="context/statusMessage">Status message</pre>
+              </div>
+           </aside>
+        </div>
+        <br>
+        <fieldset>
+          <table class="table proposals">
+            <tr>
+              <td width=200><strong>Semester:</strong></td>
+              <td colspan=3>2026A</td>
+            </tr>
+            <tr>
+              <td><strong>Principal Investigator:</strong></td>
+              <td tal:content="context/pi_name">PI Name</td>
+              <td width=100><strong>Email:</strong></td>
+              <td tal:content="context/email">email</td>
+            </tr>
+            <tr>
+              <td><strong>Department:</strong></td>
+              <td tal:content="context/department">Department</td>
+              <td><strong>Telephone:</strong></td>
+              <td tal:content="context/telephone">Phone</td>
+            </tr>    
+          </table>
+        </fieldset>
+
+        <h4>Projects</h4>
+        <fieldset>
+          <div style="border: 2px solid lightgrey; padding: 5px; margin-bottom: 10pt;" class="proposal-project"
+             tal:repeat="project context/projects">
+            <table tal:define="projnum repeat/project/number">
+              <tr>
+                <td width=150><strong>Project No. <span tal:replace="projnum"/>
+                  </strong></td>
+                <td> <span tal:replace="project/proj_title"/></td>
+              </tr>
+              <tr>
+                <td> <strong>Priority:</strong></td>
+                <td> <span tal:replace="project/priority"/></td>
+              </tr>
+              <tr>
+                <td> <strong>Co-Investigators:</strong></td>
+                <td> <span tal:replace="project/coIs"/></td>
+              </tr>
+              <tr>
+                <table class="table table-runs">
+                  <thead>
+                    <tr>
+                      <td>Blocks</td><td>nights</td><td>moon</td><td>telescope</td>
+                      <td>instr. one</td><td>instr. two</td><td>service</td>
+                      <td>in person</td><td>observers</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr tal:repeat="row python:context.get_runs(projnum)">
+                      <td><span tal:replace="row/preferred"/>
+                          (<span tal:replace="row/fromblock"/>-<span tal:replace="row/toblock"/>)
+                      </td>
+                      <td><span tal:replace="row/nights"/></td>
+                      <td><span tal:replace="row/moon"/></td>
+                      <td><span tal:replace="row/telescope"/></td>
+                      <td><span tal:replace="python:view.instrument(row['inst1'])"/></td>
+                      <td><span tal:replace="python:view.instrument(row['inst2'])"/></td>
+                      <td><span tal:replace="row/service"/></td>
+                      <td><span tal:replace="row/in_person"/></td>
+                      <td><span tal:replace="row/observers"/></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </tr>
+            </table>
+          </div>
+        </fieldset>
+        
+        <tal:widget tal:replace="structure view/widgets/conflicts/@@ploneform-render-widget">
+
+        <tal:widget tal:replace="structure view/widgets/too/@@ploneform-render-widget">
+
+
+        <fieldset tal:repeat="group view/groups|nothing"
+                  tal:attributes="
+                    id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-');
+                  "
+        >
+          <legend tal:content="group/label"></legend>
+          <tal:block tal:repeat="widget group/widgets/values|nothing">
+            <tal:widget tal:replace="structure widget/@@ploneform-render-widget" />
+          </tal:block>
+        </fieldset>
+
+      </metal:content-core>
+    </metal:main>
+
+  </body>
+</html>
