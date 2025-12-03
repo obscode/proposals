@@ -22,9 +22,7 @@
  <property name="add_permission">cmf.AddPortalContent</property>
  <property name="klass">OBS.proposals.content.proposal.Proposal</property>
  <property name="schema">OBS.proposals.content.proposal.IProposal</property>
- <property name="behaviors">
-  <element value="plone.shortname"/>
- </property>
+ <property name="behaviors"></property>
  <property name="model_source"></property>
  <property name="model_file"></property>
  <property name="schema_policy">dexterity</property>
