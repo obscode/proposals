@@ -1,4 +1,5 @@
 from plone import schema
+from Acquisition import aq_inner
 from plone.autoform import directives
 from plone import api
 from plone.dexterity.content import Container
@@ -11,11 +12,10 @@ from z3c.form.browser.text import TextWidget
 from zope.interface import implementer
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFPlone.resources import add_resource_on_request
+from Products.statusmessages.interfaces import IStatusMessage
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
-from collective.z3cform.datagridfield.blockdatagridfield import \
-    BlockDataGridFieldWidgetFactory
 from collective.z3cform.datagridfield.row import DictRow
 
 from .vocabularies import YESNO,NUMBERS
@@ -252,6 +252,17 @@ class Proposal(Container):
 
 #### Forms ####
 
+def existingProposal(form):
+    '''Return False if there exists a proposal for this semester. Logic is
+    backwards because we're asking if we shoudl allow submission.'''
+    context = aq_inner(form.context)
+    l = context.listFolderContents(contentFilter={"portal_type":"proposal"})
+    semester = api.portal.get_registry_record("proposals.semester").lower()
+    result = True
+    for i in l:
+        if i.id.find(semester) >= 0: result = False
+    return result
+
 class AddForm(DefaultAddForm):
 
     template = ViewPageTemplateFile('myadd.pt')
@@ -259,8 +270,14 @@ class AddForm(DefaultAddForm):
     def update(self):
         super().update()
 
-    def updateWidgets(self):
-        super().updateWidgets()
+    def updateActions(self):
+        # If we already have a proposal, disable submit and do a message
+        super().updateActions()
+        res = existingProposal(self)
+        if not res:
+            self.request.response.redirect(self.nextURL())
+            IStatusMessage(self.request).addStatusMessage(
+                "Sorry, only one proposal per semester allowed", "error")
     
     def create(self, data):
         # override to give custom short name
@@ -281,7 +298,6 @@ class AddView(DefaultAddView):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ignoreRequiredOnExtract = True
 
     def __call__(self):
         add_resource_on_request(self.request, 'proposals-fixforms')
