@@ -11,10 +11,10 @@ function updateSelectOptions(select, options) {
   }
   for (let i = 0 ; i < options.length ; i++) {
     select.options.add(new Option(options[i][0],options[i][1]));
-    //console.log("Adding option "+options[i][0]);
-    if (options[i][0] == currSel) {
+    //console.log("Adding option ",options[i][0]);
+    if (options[i][1] == currSel) {
       //console.log("set value");
-      select.value = options[i][0];
+      select.value = options[i][1];
     }
   }
 }
@@ -61,11 +61,11 @@ let handleDGFInsert = function(event, dgf, row) {
 }
 
 let updateTelescopeInstruments = function(row) {
-  console.log("updateTelescopeInstruments:",row);
+  //console.log("updateTelescopeInstruments:",row);
   const allinst = document.getElementById('form-widgets-runs-TT-widgets-inst1');
   const telescope = $(row).find('select:eq(5)').val();
-  console.log("telescope:",telescope);
-  let newInstList = [];
+  //console.log("telescope:",telescope);
+  let newInstList = [["--","--NOVALUE--"]];
   if (telescope != "--NOVALUE--") {
     $(row).find('select:eq(6)').prop("disabled", false);
     if (telescope == "Swope") {
@@ -87,36 +87,19 @@ let updateTelescopeInstruments = function(row) {
   for (let i = 0 ; i < selects.length ; i++) {
     if (selects[i].name.includes('TT')) continue;
     if (selects[i].name.includes('widgets.inst1') || selects[i].name.includes('widgets.inst2')) {
+      //console.log('newinstlist:',newInstList)
       updateSelectOptions(selects[i], newInstList);
-      //nopts = selects[i].options.length;
-      //// clear out all previous options
-      //for (let j = nopts-1 ; j >= 0 ; j--){
-      //  if (selects[i].options[j].value != "--NOVALUE--") {
-      //    selects[i].remove(j);
-      //  }
-      //}
-      //// now add ones that mach current telescope
-      //for (let j = 0 ; j < allinst.options.length ; j++) {
-      //  if (allinst.options[j].value.includes(telescope)) {
-      //    // A hit
-      //    let arr = allinst.options[j].value.split(":");
-      //    let N = arr.length;
-      //    let newstr = arr.slice(1,N).join(":").trim();
-      //    selects[i].options.add( new Option(newstr, allinst.options[j].value));
-      //  }
-      //}
     }
   }
 }
 
 let handleDGFRow = function(row) {
-  console.log("handleDGRRow",row);
+  //console.log("handleDGRRow",row);
   row = $(row);
   let parent = row.closest('table');
   const widgetName = parent[0].id;
   parent = parent.children('tbody');
   if (widgetName == "form-widgets-projects") {
-    //const elems = parent.getElementsByClassName('select-widget');
     const elems = parent.find("select");
     const Nproj = parent[0].rows.length - 1;
     updateNumProjects();
@@ -141,11 +124,6 @@ let handleDGFRow = function(row) {
     const projsel = row.find('select').get(0);
     updateSelectOptions(projsel, newList);
 
-    //console.log(row.find('select:eq(5)').text());
-    //if( row.find('select:eq(5)').text() == '--' ){
-    //  row.find('select:eq(6)').prop("disabled", true);
-    //  row.find('select:eq(7)').prop("disabled", true);
-    //}
     updateTelescopeInstruments(row[0]);
 
     // Now handle telescope selection
@@ -156,35 +134,6 @@ let handleDGFRow = function(row) {
       const telescope = target.value.trim();
       const row = target.parentElement.parentElement;
       updateTelescopeInstruments(row);
-      //$(row).find('select:eq(6)').prop("disabled", false);
-      //if (telescope == "Swope") {
-      //  $(row).find('select:eq(7)').prop("disabled", true);
-      //} else {
-      //  $(row).find('select:eq(7)').prop("disabled", false);
-      // }
-
-      //const selects = row.querySelectorAll('.select-widget');
-      //for (let i = 0 ; i < selects.length ; i++) {
-      //  if (selects[i].name.includes('TT')) continue;
-      //  if (selects[i].name.includes('widgets.inst1') || selects[i].name.includes('widgets.inst2')) {
-      //    nopts = selects[i].options.length;
-      //    for (let j = nopts-1 ; j >= 0 ; j--){
-      //      if (selects[i].options[j].value != "--NOVALUE--") {
-      //        selects[i].remove(j);
-      //     }
-      //   }
-      //   // how add ones that mach current telescope
-      //   for (let j = 0 ; j < allinst.options.length ; j++) {
-      //     if (allinst.options[j].value.includes(telescope)) {
-      //       // A hit
-      //       let arr = allinst.options[j].value.split(":");
-      //       let N = arr.length;
-      //       let newstr = arr.slice(1,N).join(":").trim();
-      //       selects[i].options.add( new Option(newstr, allinst.options[j].value));
-      //     }
-      //   }
-      // }
-      //}
     });
   }
 };
