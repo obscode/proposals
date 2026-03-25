@@ -5,6 +5,7 @@ from plone import api
 from plone.dexterity.content import Container
 from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
 from plone.dexterity.browser.view import DefaultView
+from plone.dexterity.browser.edit import DefaultEditForm, DefaultEditView
 from plone.schema.email import Email
 from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
@@ -37,9 +38,9 @@ class IObservingRunSchema(model.Schema):
        default='1',
    )
    preferred = schema.Choice(
-      title='Preferred',
       vocabulary="proposals.RUNS",
       required=False,
+      title="Pref"
       #default='D01'
    )
 
@@ -286,7 +287,7 @@ class AddForm(DefaultAddForm):
         sname = member.getId()
         semester = api.portal.get_registry_record("proposals.semester")
         fname = sname+"_proposal"+semester.strip().lower()
-        
+
         # Create object the usual way
         obj = super().create(data)
         obj.id = fname
@@ -302,6 +303,26 @@ class AddView(DefaultAddView):
     def __call__(self):
         add_resource_on_request(self.request, 'proposals-fixforms')
         return super(AddView, self).__call__()
+
+class EditForm(DefaultEditForm):
+
+    template = ViewPageTemplateFile('myedit.pt')
+
+    def update(self):
+        super().update()
+
+    def applyChanges(self, data):
+        # Ensure we have a running number for each project:
+        for i,proj in enumerate(data['projects']):
+            proj['proj_number'] = i+1
+        print("DATA:",data)
+        super().applyChanges(data)
+
+class EditView(DefaultEditView):
+
+    def __call__(self):
+        add_resource_on_request(self.request, 'proposals-fixforms')
+        return super(EditView, self).__call__()
 
 class View(DefaultView):
     def __init__(self, *args, **kwargs):

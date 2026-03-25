@@ -34,6 +34,16 @@
       permission="zope2.View"
       template="view.pt"
       />
+
+  <!-- Custom edit page -->
+  <browser:page
+      for="OBS.proposals.content.proposal.IProposal"
+      name="edit"
+      class="OBS.proposals.content.proposal.EditForm"
+      permission="cmf.ModifyPortalContent"
+      />
+
+  
       
   <adapter
       for="Products.CMFCore.interfaces.IFolderish
