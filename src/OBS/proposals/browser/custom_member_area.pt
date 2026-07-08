@@ -1,0 +1,65 @@
+<html xmlns="http://w3.org" xml:lang="en"
+      lang="en"
+      metal:use-macro="context/@@main_template/macros/master">
+<body>
+  <div metal:fill-slot="main" tal:define="profile view/get_owner_profile">
+    
+    <!-- User Dashboard Header -->
+    <div class="portal-member-header" tal:condition="profile">
+      <h1>Welcome, 
+         <span tal:replace="profile/fullname">User Full Name</span>
+      </h1>
+      <p class="documentDescription" tal:content="profile/description">User biography...</p>
+      
+      <ul class="member-meta discreet">
+        <li tal:condition="profile/location"><strong>Location:</strong> <span tal:replace="profile/location">City</span></li>
+        <li tal:condition="profile/email"><strong>Contact:</strong> <span tal:replace="profile/email">email@domain.com</span></li>
+      </ul>
+    </div>
+
+    <hr />
+
+    <!-- List of contents created by this user inside their folder -->
+    <div class="member-content-listing" tal:define="folder_contents view/get_member_content">
+      <h2>Your proposals:</h2>
+      <p tal:condition="not: folder_contents">
+         Looks like you haven't submitted a proposal yet!
+      </p>
+      
+      <table class="table tab-striped table-bordered" 
+         tal:condition="folder_contents"
+         tal:define="token context/@@authenticator/token">
+        <tr>
+        <th>Proposal</th><th>Status</th><td>Actions</td></tr>
+        <tr tal:repeat="brain folder_contents">
+          <tal:this_item tal:define="item brain/getObject;
+                                     url brain/getURL;
+                                     state brain/review_state">
+            <td>
+               <a tal:attributes="href url" 
+               tal:content="item/Title">Document Title</a>
+            </td>
+            <td>
+               <span tal:replace="item/status">Status</span>
+            <td>
+               <a tal:attributes="href python:url+'/edit?_authenticator='+token">Edit</a>
+               &nbsp;|&nbsp;
+               <a tal:condition="python: item.status()=='Ready for Submission'"
+                  tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=submit&came_from='+context.absolute_url()">Submit</a>
+               <a tal:condition="python: state=='pending'"
+                  tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=retract&came_from='+context.absolute_url()">Retract</a>
+            </td>
+          </tal:this_item>
+        </tr>
+      </table>
+    </div>
+    <br>
+    <button class="submit-widget btn btn-primary" 
+            tal:attributes="onclick view/addProp">
+            New Proposal
+            </button>
+
+  </div>
+</body>
+</html>
+

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<object name="Folder" meta_type="Dexterity FTI" xmlns:i18n="http://zope.org">
+  <property name="view_methods" purge="False">
+    <element value="custom-member-area-view"/>
+  </property>
+</object>
+

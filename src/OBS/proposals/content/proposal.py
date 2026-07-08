@@ -12,8 +12,10 @@ from plone.supermodel import model
 from z3c.form.browser.text import TextWidget
 from zope.interface import implementer
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+from Products.Five.browser import BrowserView
 from Products.CMFPlone.resources import add_resource_on_request
 from Products.statusmessages.interfaces import IStatusMessage
+from plone.protect.authenticator import createToken
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
@@ -179,7 +181,7 @@ class IProposal(model.Schema):
         required=False,
     )
 
-    conflicts = schema.Text(
+    requirements = schema.Text(
         title='Special or Additional Requirements',
         description='A list of extra requirements, such as specific dates for'\
                     ' mandatory observing or additional needs.',
@@ -241,11 +243,36 @@ class Proposal(Container):
 
     def statusMessage(self):
         '''Returns the current status of the proposal'''
-        return("Status good")
+        missing = []
+        conflict = []
+        message = ""
+        if self.abstract is None:
+            missing.append("Need Abstract")
+        if self.target_list is None:
+            missing.append("Need Target List")
+        if self.justification is None:
+            missing.append("Need Scientific Justification")
+        if self.progress_to_date is None:
+            missing.append("Need Progress to Date")
+        if missing or conflict:
+            message += "\n".join(missing+conflict)
+            return message
+        return "Your proposal appears to satisfy the requirements for submission"
+
 
     def status(self):
         '''Returns True if proposal is ready for submission'''
-        return True
+        wf_state = api.content.get_state(self)
+        if wf_state == "pending":
+           return "Submitted"
+
+        # At this point, we should be "private"
+        if self.abstract is None or \
+           self.target_list is None or \
+           self.justification is None or \
+           self.progress_to_date is None: return "Incomplete"
+
+        return "Ready for Submission"
 
     def Title(self):
         '''Returns an appropriate title'''
@@ -328,6 +355,11 @@ class View(DefaultView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
+    def update(self):
+        # Disable the menu bar
+        #self.request.set('disable_border', True)
+        super().update()
+
     def instrument(self, inst):
         '''Given a complete instrument string in the form 
            [telescope]:[instrument], return only instrument'''
@@ -338,4 +370,78 @@ class View(DefaultView):
         else:
             return inst
 
+    # The following are needed for the simple reason that TAL is limited in
+    # what it can do, particularly having python: code produce a string with
+    # a single quote in it.
+    def editTag(self):
+        return "window.location='{}/edit?_authenticator={}'".format(
+           self.context.absolute_url(), createToken())
 
+    def shareTag(self):
+        return "window.location='{}/@@sharing?_authenticator={}'".format(
+           self.context.absolute_url(), createToken())
+
+    def transitionTag(self):
+        stat = self.context.status()
+        if stat == "Submitted":
+           return "window.location='{}/transition?_authenticator={}&transition={}'".format(
+              self.context.absolute_url(), createToken(),'retract')
+        elif stat == "Incomplete":
+           return "''"
+        return "window.location='{}/transition?_authenticator={}&transition={}'".format(
+           self.context.absolute_url(), createToken(),'submit')
+
+    def transitionLab(self):
+        stat = self.context.status()
+        if stat == "Submitted":
+           return "Retract"
+        return "Submit"
+
+
+
+
+class TransitionView(BrowserView):
+    """Custom view to change the workflow state of a content item that
+    can handle a came_from paramter."""
+
+    def __call__(self):
+        context = self.context
+        request = self.request
+        messages = IStatusMessage(request)
+        transition = request.form.get('transition', None)
+        successes = {"submit":"Proposal Submitted",
+                     "retract":"Proposal Retracted"}
+        errors = {"submit":"Failed to submit proposal",
+                   "retract":"Failed to retract proposal"}
+
+        # If transition is specified and valid, use it. Otherwise, use a 
+        # "toggle"-like transition:  private --> submitted --> private ...
+        if transition is not None:
+            if transition not in ['submit','retract']:
+                messages.add(u"Invalid Workflow Transition", type="error")
+        else:
+            # Get current state and toggle
+            state = api.content.get_state(obj=context)
+            if state == 'private':
+                transition = 'submit'
+            else:
+                transition = 'retract'
+
+        try:
+            # 2. Trigger the transition
+            api.content.transition(obj=context, transition=transition)
+            messages.add(u"{}".format(successes[transition]), type="info")
+
+        except PloneAPIError as e:
+            messages.add(u"{}: {}".format(errors[transition],str(e)), 
+                         type="error")
+
+        # Now, let's figure out where to end up. If came_from is set,
+        # respect that, otherwise, stay put
+        came_from = request.form.get("came_from", None)
+        if came_from is not None:
+            return request.response.redirect(came_from)
+
+        item_url = context.absolute_url()
+        return request.response.redirect(item_url)
+ 

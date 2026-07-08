@@ -35,6 +35,14 @@
       template="view.pt"
       />
 
+  <!-- Custom transition -->
+  <browser:page
+      name="transition"
+      for="OBS.proposals.content.proposal.IProposal"
+      class="OBS.proposals.content.proposal.TransitionView"
+      permission="cmf.ModifyPortalContent"
+      />
+
   <!-- Custom edit page -->
   <browser:page
       for="OBS.proposals.content.proposal.IProposal"
@@ -43,8 +51,21 @@
       permission="cmf.ModifyPortalContent"
       />
 
-  
-      
+  <!-- Custom Member folder view -->
+  <browser:page
+        name="custom-member-area-view"
+        for="plone.app.contenttypes.interfaces.IFolder"
+        class=".member_area.CustomMemberAreaView"
+        template="custom_member_area.pt"
+        permission="zope2.View"
+        layer="OBS.proposals.interfaces.IObsProposalsLayer"
+        />
+  <!-- Event listener for new user to set default view -->
+  <subscriber
+     for="plone.app.contenttypes.interfaces.IFolder
+          zope.lifecycleevent.interfaces.IObjectAddedEvent"
+     handler=".subscribers.set_member_area_default_view" />
+
   <adapter
       for="Products.CMFCore.interfaces.IFolderish
          zope.publisher.interfaces.browser.IDefaultBrowserLayer
@@ -59,6 +80,12 @@
         interface="zope.publisher.interfaces.browser.IBrowserPage"
         />
   </class>"
+
+  <adapter
+     factory="OBS.proposals.browser.adapters.ForceHomeFolderRedirect"
+     for="Products.CMFPlone.interfaces.IPloneSiteRoot
+          OBS.proposals.interfaces.IObsProposalsLayer"/>
+
 
   <adapter
       factory="OBS.proposals.browser.controlpanel.ProposalsRegistryConfigletPanel"
