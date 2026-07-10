@@ -16,6 +16,7 @@ from Products.Five.browser import BrowserView
 from Products.CMFPlone.resources import add_resource_on_request
 from Products.statusmessages.interfaces import IStatusMessage
 from plone.protect.authenticator import createToken
+from .generate_pdf import generate_pdf
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
@@ -137,6 +138,23 @@ class IProjectSchema(model.Schema):
        required=False,
    )
 
+class ITOORequestSchema(model.Schema):
+    """Schema for Target of Opportunity Request"""
+    project = schema.Choice(
+         title='Project',
+         required=False,
+         vocabulary=NUMBERS,
+         default='1',
+    )
+    hours = schema.TextLine(
+         title='Hours',
+         required=True,
+    )
+    telescopes = schema.TextLine(
+        title='Telescopes',
+        required=True,
+    )
+
 
 
 
@@ -170,10 +188,6 @@ class IProposal(model.Schema):
         required=True,
     )
 
-    too = NamedBlobFile(
-        title='Target of Opportunity Time Request(s)',
-        required=False,
-    )
 
     conflicts = schema.Text(
         title='Conflicts',
@@ -230,6 +244,16 @@ class IProposal(model.Schema):
         )
     )
     directives.widget("runs", DataGridFieldFactory,
+                     auto_append=False)
+
+    too = schema.List(
+        title="Target of Opportunity Requests",
+        value_type=DictRow(
+           title="ToO Request",
+           schema=ITOORequestSchema,
+        )
+    )
+    directives.widget("too", DataGridFieldFactory,
                      auto_append=False)
 
 
@@ -318,7 +342,7 @@ class AddForm(DefaultAddForm):
         # Create object the usual way
         obj = super().create(data)
         obj.id = fname
-        
+        obj.semester = semester
         return obj
 
 class AddView(DefaultAddView):
@@ -398,6 +422,17 @@ class View(DefaultView):
         return "Submit"
 
 
+class PDFView(BrowserView):
+    """Custom view to generate a PDF of the proposal"""
+
+    def __call__(self):
+        context = self.context
+        request = self.request
+        pdf = generate_pdf(context)
+        request.response.setHeader('Content-Type', 'application/pdf')
+        request.response.setHeader('Content-Disposition', 'inline; filename="proposal.pdf"')
+        request.response.setHeader('Content-Length', len(pdf))
+        return pdf
 
 
 class TransitionView(BrowserView):

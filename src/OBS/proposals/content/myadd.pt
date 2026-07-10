@@ -51,6 +51,22 @@
                 <metal:field use-macro="context/@@ploneform-macros/field"/>
             </td>
           </tr>
+          <tr>
+            <!-- ToO -->
+            <td tal:define="widget python:view.widgets['too']" colspan=4 border=1>
+                <metal:field use-macro="context/@@ploneform-macros/field"/>
+            </td>
+          </tr>
+          <tr>
+           <td colspan=4 border=1 tal:define="widget python:view.widgets['requirements']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+          </tr>
+          <tr>
+           <td colspan=4 border=1 tal:define="widget python:view.widgets['conflicts']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+          </tr>
        </table>
     </fieldset>
     <!-- Secondary fieldsets -->

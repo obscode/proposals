@@ -24,6 +24,11 @@
           </button>
           <button 
               tal:attributes="class python: 'submit-widget btn btn-secondary'+[' disabled',''][status.find('satisfy') >= 0];
+                              onclick string: window.location='${context/absolute_url}/pdf'">
+              PDF
+          </button>
+          <button 
+              tal:attributes="class python: 'submit-widget btn btn-secondary'+[' disabled',''][status.find('satisfy') >= 0];
                               onclick view/transitionTag"
               tal:content="view/transitionLab">
               Transition
@@ -116,6 +121,8 @@
           </div>
         </fieldset>
         
+        <tal:widget tal:replace="structure view/widgets/requirements/@@ploneform-render-widget">
+
         <tal:widget tal:replace="structure view/widgets/conflicts/@@ploneform-render-widget">
 
         <tal:widget tal:replace="structure view/widgets/too/@@ploneform-render-widget">

@@ -26,7 +26,18 @@
       layer="OBS.proposals.interfaces.IObsProposalsLayer"
       />
 
-  <!-- Custom view page -->
+  <!-- Custom view page for collection (to make a proposal listing) -->
+  <browser:page name="custom_collection_view"
+                  permission="zope2.View"
+                  for="plone.app.contenttypes.interfaces.ICollection"
+                  template="collection_custom_view.pt" />
+
+  <browser:menuItems for="plone.app.contenttypes.interfaces.ICollection"
+                     menu="plone_displayviews">
+    <browser:menuItem title="Custom Collection View" action="custom_collection_view" />
+  </browser:menuItems>
+
+  <!-- Custom view pages -->
   <browser:page
       for="OBS.proposals.content.proposal.IProposal"
       name="view"
@@ -34,6 +45,13 @@
       permission="zope2.View"
       template="view.pt"
       />
+
+  <browser:page
+    name="pdf"
+    for="OBS.proposals.content.proposal.IProposal"
+    class="OBS.proposals.content.proposal.PDFView"
+    permission="zope2.View"
+    />
 
   <!-- Custom transition -->
   <browser:page

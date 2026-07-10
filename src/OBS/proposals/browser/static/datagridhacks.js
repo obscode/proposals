@@ -24,7 +24,8 @@ function updateNumProjects() {
   // to be consistent
   const projrows = $('#form-widgets-projects tbody tr:not([data-index="TT"])');
   const runsrows = $('#form-widgets-runs tbody tr:not([data-index="TT"])');
-  const Nproj = projrows.length;
+  const toorows = $('#form-widgets-too tbody tr:not([data-index="TT"])');
+  let Nproj = projrows.length;
   if (Nproj < 1) Nproj = 1;  // deal with first loading of page
   var newList = []
   // The new vocabulary
@@ -37,6 +38,9 @@ function updateNumProjects() {
     updateSelectOptions($(this).find('select').get(0), newList);
   });
   runsrows.each(function() {
+    updateSelectOptions($(this).find('select').get(0), newList);
+  });
+  toorows.each(function() {
     updateSelectOptions($(this).find('select').get(0), newList);
   });
 }
@@ -112,7 +116,7 @@ let handleDGFRow = function(row) {
        updateNumProjects();
     });
   }
-  if (widgetName == "form-widgets-runs") {
+  if (widgetName == "form-widgets-runs" || widgetName == "form-widgets-too") {
     // Project listing should only include number of projects
     const projrows = $("#form-widgets-projects tbody tr");
     let Nproj = projrows.length - 1;
@@ -124,17 +128,19 @@ let handleDGFRow = function(row) {
     const projsel = row.find('select').get(0);
     updateSelectOptions(projsel, newList);
 
-    updateTelescopeInstruments(row[0]);
+    if (widgetName == "form-widgets-runs") {
+      updateTelescopeInstruments(row[0]);
 
-    // Now handle telescope selection
-    const select = row[0].querySelector('[name$="telescope:list"]');
-    select.addEventListener('change', function(event) {
-      const allinst = document.getElementById('form-widgets-runs-TT-widgets-inst1');
-      const target = event.target;
-      const telescope = target.value.trim();
-      const row = target.parentElement.parentElement;
-      updateTelescopeInstruments(row);
-    });
+      // Now handle telescope selection
+      const select = row[0].querySelector('[name$="telescope:list"]');
+      select.addEventListener('change', function(event) {
+        const allinst = document.getElementById('form-widgets-runs-TT-widgets-inst1');
+        const target = event.target;
+        const telescope = target.value.trim();
+        const row = target.parentElement.parentElement;
+        updateTelescopeInstruments(row);
+      });
+    }
   }
 };
 

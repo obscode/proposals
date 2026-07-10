@@ -10,6 +10,7 @@
 <metal:use use-macro="context/@@ploneform-macros/titlelessform">
   <metal:description-slot fill-slot="formtop">
     <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js">
+    <script type="text/javascript" src="/++plone++OBS.proposals/next_prev.js">
     </script>
     <H1>Edit Proposal</H1>
     <P>Required fields are marked with a red dot.</P>
@@ -58,6 +59,24 @@
           <tr>
             <!-- Runs -->
             <td tal:define="widget python:view.widgets['runs']" colspan=4 border=1>
+                <metal:field use-macro="context/@@ploneform-macros/field"/>
+            </td>
+          </tr>
+          <tr>
+            <!-- ToO -->
+            <td tal:define="widget python:view.widgets['too']" colspan=4 border=1>
+                <metal:field use-macro="context/@@ploneform-macros/field"/>
+            </td>
+          </tr>
+          <tr>
+            <!-- requirements -->
+            <td tal:define="widget python:view.widgets['requirements']" colspan=4 border=1>
+                <metal:field use-macro="context/@@ploneform-macros/field"/>
+            </td>
+          </tr>
+          <tr>
+            <!-- conflicts -->
+            <td tal:define="widget python:view.widgets['conflicts']" colspan=4 border=1>
                 <metal:field use-macro="context/@@ploneform-macros/field"/>
             </td>
           </tr>
