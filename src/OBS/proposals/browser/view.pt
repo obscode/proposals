@@ -116,6 +116,23 @@
                     </tr>
                   </tbody>
                 </table>
+                <div tal:condition="python: context.get_toos(projnum)">
+                  <strong>Target of Opportunity (ToO) Requests:</strong>
+                  <table class="table table-runs"
+                         condition="python: context.get_toos(projnum)">
+                    <thead>
+                      <tr>
+                        <td>Hours</td><td>Telescope(s)</td>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr tal:repeat="row python:context.get_toos(projnum)">
+                        <td><span tal:replace="row/hours"/></td>
+                        <td><span tal:replace="row/telescopes"/></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </tr>
             </table>
           </div>
@@ -124,9 +141,6 @@
         <tal:widget tal:replace="structure view/widgets/requirements/@@ploneform-render-widget">
 
         <tal:widget tal:replace="structure view/widgets/conflicts/@@ploneform-render-widget">
-
-        <tal:widget tal:replace="structure view/widgets/too/@@ploneform-render-widget">
-
 
         <fieldset tal:repeat="group view/groups|nothing"
                   tal:attributes="

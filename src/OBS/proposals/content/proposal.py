@@ -265,6 +265,10 @@ class Proposal(Container):
         '''Return list of runs for project number projnum'''
         return [run for run in self.runs if run['project'] == str(projnum)]
 
+    def get_toos(self, projnum):
+        '''Return list of ToO requests for project number projnum'''
+        return [too for too in self.too if too['project'] == str(projnum)]
+
     def statusMessage(self):
         '''Returns the current status of the proposal'''
         missing = []
