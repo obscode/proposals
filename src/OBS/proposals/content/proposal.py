@@ -263,10 +263,14 @@ class Proposal(Container):
     
     def get_runs(self, projnum):
         '''Return list of runs for project number projnum'''
+        if self.runs is None:
+            return []
         return [run for run in self.runs if run['project'] == str(projnum)]
 
     def get_toos(self, projnum):
         '''Return list of ToO requests for project number projnum'''
+        if self.too is None:
+            return []
         return [too for too in self.too if too['project'] == str(projnum)]
 
     def statusMessage(self):
@@ -291,7 +295,7 @@ class Proposal(Container):
     def status(self):
         '''Returns True if proposal is ready for submission'''
         wf_state = api.content.get_state(self)
-        if wf_state == "pending":
+        if wf_state == "submitted":
            return "Submitted"
 
         # At this point, we should be "private"
@@ -461,7 +465,7 @@ class TransitionView(BrowserView):
         else:
             # Get current state and toggle
             state = api.content.get_state(obj=context)
-            if state == 'private':
+            if state == 'draft':
                 transition = 'submit'
             else:
                 transition = 'retract'
