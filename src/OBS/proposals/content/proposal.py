@@ -155,6 +155,36 @@ class ITOORequestSchema(model.Schema):
         required=True,
     )
 
+class ITargetSchema(model.Schema):
+    """Schema for a single target in a target list"""
+    name = schema.TextLine(
+        title='Target Name',
+        required=True,
+    )
+    ra1 = schema.TextLine(
+        title='RA',
+        required=True,
+    )
+    ra2 = schema.TextLine(
+        title='RA end',
+        required=False,
+    )
+    dec1 = schema.TextLine(
+        title='Dec',
+        required=True,
+    )
+    dec2 = schema.TextLine(
+        title='Dec end',
+        required=False,
+    )
+    mag = schema.TextLine(
+        title='Magnitude',
+        required=False,
+    )
+    epoch = schema.TextLine(
+        title='Epoch',
+        required=False,
+    )
 
 
 
@@ -163,7 +193,12 @@ class IProposal(model.Schema):
 
     model.fieldset("Justification",
         label="Science Justification PDFs",
-        fields=['abstract','target_list','justification','progress_to_date'],
+        fields=['abstract','justification','progress_to_date'],
+    )
+
+    model.fieldset("Targets",
+        label="List of Targets",
+        fields=["notargets","targets","target_list"],
     )
 
     pi_name = schema.TextLine(
@@ -209,7 +244,31 @@ class IProposal(model.Schema):
     )
     target_list = NamedBlobFile(
         title='Target List',
-        description='A PDF with targets for all projects',
+        description='A PDF or CSV file with targets for all projects',
+        required=False,
+    )
+
+    targets = schema.List(
+        title="Targets",
+        description="Enter targets manually (if you don't have too many). If you have a "\
+                    "range of RA/DEC, use 'RA' for minimum and 'RA end' for maximum and "\
+                    "likewise for Dec. Magnitude and Epoch are optional. Epoch should be "
+                    " in JD. For large lists," \
+                    "upload a CSV (preferred) or PDF file below.",
+        value_type=DictRow(
+            title="Target List",
+            schema=ITargetSchema,
+        ),
+        required=False,
+    )
+    directives.widget("targets", DataGridFieldFactory,
+                     auto_append=False)
+
+    notargets = schema.Bool(
+        title="No Specific Targets",
+        description="Check this box if you do not have specific targets, for example "\
+                    "because you are requesting ToO time for yet-to-be-discovered objects "\
+                    "or you have targets disributed at all across the sky.",
         required=False,
     )
 
@@ -255,6 +314,7 @@ class IProposal(model.Schema):
     )
     directives.widget("too", DataGridFieldFactory,
                      auto_append=False)
+    
 
 
 @implementer(IProposal)
