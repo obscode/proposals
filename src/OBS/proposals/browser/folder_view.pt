@@ -5,19 +5,56 @@
 <body>
 
 <metal:main fill-slot="main">
-    <div tal:define="results context/results">
-        
-        <!-- Collection Title and Description -->
-        <h1 class="documentFirstHeading" tal:content="context/Title">Collection Title</h1>
-        <p class="documentDescription" tal:content="context/Description">Collection Description</p>
+    <h2>Proposal Listing <span tal:content="context/semester">2026A</span></h2>
 
+
+    <tal:tgz define="tgzfile context/get_tgz_file;
+                     contents context/@@contentlisting">
+        <div tal:condition="contents">
+           <table class="table table-striped data-table table-bordered" id="proposal-toc-table">
+               <thead>
+                   <tr>
+                       <th i18n:translate="">File Name</th>
+                       <th i18n:translate="">Size</th>
+                       <th i18n:translate="">Modified</th>
+                       <th i18n:translate="">Download</th>
+                   </tr>
+               </thead>
+               <tbody>
+                   <tr tal:repeat="item contents">
+                     <tal:define define="obj item/getObject;
+                                   url item/absolute_url">
+                       <td tal:content="obj/title">Proposal Archive</td>
+                       <td tal:define="fileobj obj/file | nothing">
+                           <span tal:content="python: fileobj and fileobj.getSize() or '0'">0</span>
+                       </td>
+                       <td tal:content="python: context.toLocalizedTime(obj.ModificationDate())">Jan 01, 2026</td>
+                       <td><a tal:attributes="href url">Download</a></td>
+                     </tal:define>
+                   </tr>
+               </tbody>
+           </table>
+        </div>
+        <br>
+
+        <div tal:condition="python: not contents"
+           class="row" style="border: 2px solid #f1aeb5 ; background-color: #f8d7da;padding: 2px;">
+           <aside class="col-12">
+              <div class="portalMessage">
+                <p>TGZ file has not yet been genearted</p>
+              </div>
+           </aside>
+        </div>
+    </tal:tgz>
+    <div tal:define="results view/get_items">
         <!-- Display message if the collection is empty -->
         <div class="portalMessage info" tal:condition="not: results">
             <p i18n:translate="">No items match this collection's criteria.</p>
         </div>
 
         <!-- Results Table -->
-        <table class="table table-striped data-table table-bordered" id="custom-collection-table" tal:condition="results">
+        <table class="table table-striped data-table table-bordered" id="custom-collection-table"
+                  tal:condition="results">
             <thead>
                 <tr>
                     <th i18n:translate="">Investigator</th>
@@ -37,22 +74,25 @@
                 </tr>
             </thead>
             <tbody>
-              <tal:block tal:repeat="item results">
+              <tal:block tal:repeat="brain results">
+              <tal:define define="item python: brain.getObject();
+                                 url brain/getURL;
+                                 state brain/review_state">
                 <tr tal:repeat="run item/runs">
                     <!-- Title with clickable link to the item -->
                     <td> <span tal:content="item/pi_name"
                                tal:condition="repeat/run/start">Name</span> </td>
                     <td>
                        <tal:subblock tal:condition="repeat/run/start">
-                         <span tal:condition="python: item.review_state()=='draft'"
+                        <span tal:condition="python: state == 'draft'"
                                style="color: orange;">pending</span>
-                         <span tal:condition="python: item.review_state()=='submitted'"
+                         <span tal:condition="python: state == 'submitted'"
                                style="color: green;">submitted</span>
                       </tal:subblock>
                     </td>
                     <td> <span tal:content="item/department"
                                tal:condition="repeat/run/start">department</span> </td>
-                    <td> <span tal:content="repeat/item/number">1</span> </td>
+                    <td> <span tal:content="repeat/brain/number">1</span> </td>
                     <td> <span tal:content="python: run['preferred']+'('+run['moon']+')'">D01(0)</span></td>
                     <td> <span tal:content="run/telescope">Baade</span></td>
                     <td> <span tal:content="python: run['inst1'].split(':')[1]"
@@ -67,18 +107,19 @@
                               tal:condition="repeat/run/start">Jan 01, 2026</span>
                     </td>
                     <td>
-                        <a tal:attributes="href item/getURL"
+                       <a tal:attributes="href url"
                            tal:condition="repeat/run/start">
                            HTML
                         </a>
                     </td>
                     <td>
-                        <a tal:attributes="href python: item.getURL()+'/pdf'"
+                        <a tal:attributes="href python: url+'/pdf'"
                            tal:condition="repeat/run/start">
                            PDF
                         </a>
                     </td>
                 </tr>
+              </tal:define>
               </tal:block>
             </tbody>
         </table>
