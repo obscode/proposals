@@ -90,14 +90,26 @@ class TGZView(BrowserView):
         if not exists:
             # Make an in-memoery tgz file
             tarout = BytesIO()
+            pdf_names = []
             with TarFile.open(fileobj=tarout, mode='w:gz') as tar:
                 for brain in brains:
                     proposal = brain.getObject()
+                    name = proposal.pi_name
+                    fn = name.split()[0][0].lower()
+                    ln = name.split()[-1].lower()
+                    idx = 0
+                    pdfname = f"{fn}_{ln}_{proposal.semester}_{idx}.pdf" 
+                    while pdfname in pdf_names:
+                        idx += 1
+                        pdfname = f"{fn}_{ln}_{proposal.semester}_{idx}.pdf" 
+                    pdfname = pdfname.replace("_0.pdf",".pdf")
+                    pdf_names.append(pdfname)
+                    
                     pdf = generate_pdf(proposal)
                     # Create a file-like object for the PDF
                     pdf_file = BytesIO(pdf)
                     # Create a TarInfo object for the PDF file
-                    tarinfo = TarInfo(name=f"{proposal.id}.pdf")
+                    tarinfo = TarInfo(name=f"{tid}/{proposal.id}.pdf")
                     tarinfo.size = len(pdf)
                     tarinfo.mtime = proposal.modified()
                     # Add the PDF file to the tar archive

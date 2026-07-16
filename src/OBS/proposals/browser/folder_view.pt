@@ -29,7 +29,7 @@
                            <span tal:content="python: fileobj and fileobj.getSize() or '0'">0</span>
                        </td>
                        <td tal:content="python: context.toLocalizedTime(obj.ModificationDate())">Jan 01, 2026</td>
-                       <td><a tal:attributes="href url">Download</a></td>
+                       <td><a tal:attributes="href python: obj.absolute_url()">Download</a></td>
                      </tal:define>
                    </tr>
                </tbody>
