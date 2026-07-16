@@ -9,9 +9,8 @@
 <metal:main fill-slot="content-core">
 <metal:use use-macro="context/@@ploneform-macros/titlelessform">
   <metal:description-slot fill-slot="formtop">
-    <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js">
-    <script type="text/javascript" src="/++plone++OBS.proposals/next_prev.js">
-    </script>
+    <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js"></script>
+    <script type="text/javascript" src="/++plone++OBS.proposals/next_prev.js"></script>
     <H1>Edit Proposal</H1>
     <P>Required fields are marked with a red dot.</P>
   </metal:description-slot>

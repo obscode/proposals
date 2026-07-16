@@ -1,7 +1,7 @@
 <metal:use use-macro="context/@@ploneform-macros/titlelessform">
   <metal:description-slot fill-slot="formtop">
-    <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js">
-    </script>
+    <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js"> </script>
+    <script type="text/javascript" src="/++plone++OBS.proposals/next_prev.js"> </script>
     <P>Required fields are marked with a red dot.</P>
   </metal:description-slot>
   <metal:fields-slot fill-slot="fields">
@@ -93,6 +93,13 @@
                   "
                 i18n:translate=""
         >Form name</legend>
+        <h2 tal:condition="fieldset_label"
+                tal:content="fieldset_label"
+                tal:attributes="
+                  id string:fieldsetlegend-${fieldset_name};
+                  "
+                i18n:translate=""
+        >Form name</h2>
 
         <p tal:define="
                        group_description group/description|nothing;

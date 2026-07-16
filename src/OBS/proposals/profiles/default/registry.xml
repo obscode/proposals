@@ -8,6 +8,11 @@
        interface="Products.CMFPlone.interfaces.IResourceRegistry">
      <value key="js">++plone++OBS.proposals/datagridhacks.js</value>
    </records>
+   <records
+       prefix="plone.resources/proposals-nextprev"
+       interface="Products.CMFPlone.interfaces.IResourceRegistry">
+     <value key="js">++plone++OBS.proposals/next_prev.js</value>
+   </records>
    <records interface="plone.app.querystring.interfaces.IQueryField" 
              prefix="plone.app.querystring.field.semester">
         <value key="title">Semester</value>
