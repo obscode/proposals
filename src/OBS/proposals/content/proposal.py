@@ -10,13 +10,15 @@ from plone.schema.email import Email
 from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
 from z3c.form.browser.text import TextWidget
-from zope.interface import implementer
+from z3c.form import button
+from zope.interface import implementer,invariant
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five.browser import BrowserView
 from Products.CMFPlone.resources import add_resource_on_request
 from Products.statusmessages.interfaces import IStatusMessage
 from plone.protect.authenticator import createToken
 from .generate_pdf import generate_pdf
+from . import validators
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
@@ -148,22 +150,22 @@ class ITOORequestSchema(model.Schema):
     )
     hours = schema.TextLine(
          title='Hours',
-         required=True,
+         required=False,
     )
     telescopes = schema.TextLine(
         title='Telescopes',
-        required=True,
+        required=False,
     )
 
 class ITargetSchema(model.Schema):
     """Schema for a single target in a target list"""
     name = schema.TextLine(
         title='Target Name',
-        required=True,
+        required=False,
     )
     ra1 = schema.TextLine(
         title='RA',
-        required=True,
+        required=False,
     )
     ra2 = schema.TextLine(
         title='RA end',
@@ -171,7 +173,7 @@ class ITargetSchema(model.Schema):
     )
     dec1 = schema.TextLine(
         title='Dec',
-        required=True,
+        required=False,
     )
     dec2 = schema.TextLine(
         title='Dec end',
@@ -241,11 +243,13 @@ class IProposal(model.Schema):
         title='Abstract',
         description='A PDF file that contains the abstract for all projects',
         required=False,
+        constraint = validators.validate_PDF,
     )
     target_list = NamedBlobFile(
         title='Target List',
         description='A PDF or CSV file with targets for all projects',
         required=False,
+        constraint = validators.validate_PDF_or_CSV,
     )
 
     targets = schema.List(
@@ -277,12 +281,14 @@ class IProposal(model.Schema):
         description='A PDF with scientific and technical justifications of proposal, '\
                     'including figures and references',
         required=False,
+        constraint=validators.validate_PDF_SJ,
     )
     progress_to_date = NamedBlobFile(
         title='Progress ot Date on Previous Allocations (1 page)',
         description='A PDF discussion progress to adte on data obtained during nights '\
                     'allocated over the previous 3 years',
         required=False,
+        constraint=validators.validate_PDF_PD,
     )
 
     projects = schema.List(
@@ -307,6 +313,7 @@ class IProposal(model.Schema):
 
     too = schema.List(
         title="Target of Opportunity Requests",
+        required=False,
         value_type=DictRow(
            title="ToO Request",
            schema=ITOORequestSchema,
@@ -314,7 +321,7 @@ class IProposal(model.Schema):
     )
     directives.widget("too", DataGridFieldFactory,
                      auto_append=False)
-    
+
 
 
 @implementer(IProposal)
@@ -340,7 +347,7 @@ class Proposal(Container):
         message = ""
         if self.abstract is None:
             missing.append("Need Abstract")
-        if self.target_list is None:
+        if self.target_list is None and not self.targets and not self.notargets:
             missing.append("Need Target List")
         if self.justification is None:
             missing.append("Need Scientific Justification")
@@ -426,6 +433,7 @@ class AddView(DefaultAddView):
 class EditForm(DefaultEditForm):
 
     template = ViewPageTemplateFile('myedit.pt')
+    enable_form_tabbing = True
 
     def update(self):
         super().update()
@@ -434,13 +442,15 @@ class EditForm(DefaultEditForm):
         # Ensure we have a running number for each project:
         for i,proj in enumerate(data['projects']):
             proj['proj_number'] = i+1
-        print("DATA:",data)
+        #print("DATA:",data)
         super().applyChanges(data)
+
 
 class EditView(DefaultEditView):
 
     def __call__(self):
         add_resource_on_request(self.request, 'proposals-fixforms')
+        add_resource_on_request(self.request, 'proposals-nextprev')
         return super(EditView, self).__call__()
 
 class View(DefaultView):
