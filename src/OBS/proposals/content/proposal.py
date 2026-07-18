@@ -439,15 +439,16 @@ class Proposal(Container):
 
 #### Forms ####
 
-def existingProposal(form):
+def noExistingProposal(form):
     '''Return False if there exists a proposal for this semester. Logic is
     backwards because we're asking if we shoudl allow submission.'''
     context = aq_inner(form.context)
     l = context.listFolderContents(contentFilter={"portal_type":"proposal"})
-    semester = api.portal.get_registry_record("proposals.semester").lower()
+    semester = api.portal.get_registry_record("proposals.semester")
     result = True
     for i in l:
-        if i.id.find(semester) >= 0: result = False
+        if i.semester == semester:
+            result = False
     return result
 
 class AddForm(DefaultAddForm):
@@ -460,7 +461,7 @@ class AddForm(DefaultAddForm):
     def updateActions(self):
         # If we already have a proposal, disable submit and do a message
         super().updateActions()
-        res = existingProposal(self)
+        res = noExistingProposal(self)
         if not res:
             self.request.response.redirect(self.nextURL())
             IStatusMessage(self.request).addStatusMessage(
