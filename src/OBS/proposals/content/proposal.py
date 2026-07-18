@@ -17,8 +17,10 @@ from Products.Five.browser import BrowserView
 from Products.CMFPlone.resources import add_resource_on_request
 from Products.statusmessages.interfaces import IStatusMessage
 from plone.protect.authenticator import createToken
-from .generate_pdf import generate_pdf
-from . import validators
+from .generate_pdf import generate_pdf, generate_targ
+from . import validators, utils
+import csv
+from io import StringIO
 
 
 from collective.z3cform.datagridfield.datagridfield import DataGridFieldFactory
@@ -376,6 +378,64 @@ class Proposal(Container):
     def Title(self):
         '''Returns an appropriate title'''
         return self.id
+
+    def getTargetsList(self, str_output=True):
+        '''Get the list of targets based on what's in the proposal in a standard
+        format as a list of lists (good for table views)'''
+        if self.notargets:
+            # Eeasy peasy
+            return []
+        
+        if self.targets is not None:
+            l = [['Name','RA','RA end','DEC','DEC end','Mag','epoch']]
+            for targ in self.targets:
+                l.append([targ['name'],targ['ra1'],targ['ra2'],targ['dec1'],
+                          targ['dec2'],targ['mag'],targ['epoch']])
+            return l
+
+        if self.target_list is not None:
+            # could be a CSV file or PDF. Try CSV first
+            try:
+               # CSV are string objects, but NamedFileBlobs store in bytes
+               strdata = self.target_list.data.decode('utf-8')
+               fileobj = StringIO(strdata)
+               reader = csv.reader(fileobj)
+               l = utils.parse_csv(reader, str_output=str_output)
+               return l
+            except:
+               #fileobj.close()
+               # PDF then, nothing to do
+               return []
+        return []
+    
+    def getTargetCSV(self):
+        '''Get the targest list as a CSV based on what's in the proposal'''
+        if self.notargets:
+            return "Field,RA,DEC,Mag,Epoch\n"
+
+        l = self.getTargetsList(str_output=False)
+        if len(l) == 0: return None
+        csv = ""
+        for row in l:
+            csv += ",".join([str(f)for f in row])
+            csv += "\n"
+        return csv
+        
+    
+    def getTargetPDF(self):
+        '''Get a PDF of the targets based on what's in the proposal'''
+        l = self.getTargetsList()
+        if self.target_list is not None and len(l) == 0:
+            # Must be a PDF
+            return self.target_list.data
+
+        return generate_targ(l)
+
+
+
+            
+
+
 
 #### Forms ####
 

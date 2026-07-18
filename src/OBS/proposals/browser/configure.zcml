@@ -55,7 +55,14 @@
     name="generate_tgz"
     for="OBS.proposals.content.proposal_folder.IProposalFolder"
     class="OBS.proposals.content.proposal_folder.TGZView"
-    permission="zope2.View"
+    permission="cmf.ModifyPortalContent"
+    />
+
+  <browser:page
+    name="generate_targ"
+    for="OBS.proposals.content.proposal_folder.IProposalFolder"
+    class="OBS.proposals.content.proposal_folder.TargView"
+    permission="cmf.ModifyPortalContent"
     />
 
   <!-- Custom transition -->

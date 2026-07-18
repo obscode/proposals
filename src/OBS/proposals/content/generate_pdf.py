@@ -128,7 +128,7 @@ def generate_pdf(self):
          if self.too:
             jtoos = [jtoo for jtoo,too in enumerate(self.too) if 'project' in too and too['project'] == str(jp+1)]
             toos = [too for jtoo,too in enumerate(self.too) if 'project' in too and too['project'] == str(jp+1)]
-            print('********',toos)
+            #print('********',toos)
    
             if toos:
                itemTOOHeader = Paragraph("Target of Opportunity Requests:",kstyle)
@@ -236,5 +236,54 @@ def generate_pdf(self):
    result = proposal.getvalue()
    
    return result
-#   except:
-#      return None
+
+
+def generate_targ(targets):
+   '''Given a list of targets with RA,DEC, make a PDF table. We are simply
+   making a table from list of lists. The parser has made sure it has the
+   desired format'''
+   report = StringIO()
+   cover = SimpleDocTemplate(report,pagesize=letter,leftMargin=0.5*inch,rightMargin=0.5*inch)
+   style = styles.getSampleStyleSheet()
+   fontSize = 9
+   items = [ ]
+   
+   getkey = lambda dict,key: (key in dict and str(dict[key])) or ("")
+   
+   tstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=16, leading=16)
+   kstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=fontSize, leading=16)
+   istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize)
+   items.append(Paragraph("Targets", tstyle))
+
+   if not targets:
+      items.append(Paragraph("This proposal has no specific targets", kstyle))
+      cover.build(items)
+      return report.getvalue()
+
+   Titles = targets[0]
+   msizes = []
+   for i in range(len(Titles)):
+      msizes.append(max([len(str(row[i])) for row in targets]))
+   tsize = sum(msizes)
+
+   elements = [ [ Paragraph(title,kstyle) for title in Titles]]
+   for row in targets[1:]:
+      elements.append([Paragraph(str(field), istyle) for field in row])
+   
+      itemTargets = Table(elements)
+      itemTargets.setStyle(TableStyle([
+            ('GRID',(0,0),(-1,-1),0.25,colors.black,),
+            ('BOX',(0,0),(-1,-1),0.25,colors.black,),
+            ('LINEABOVE',(0,0),(-1,-1),0.25,colors.black,),
+            ('LINEBELOW',(0,0),(-1,-1),0.25,colors.black,),
+            ('RIGHTPADDING',(0,0),(-1,-1),0,),
+            ('VALIGN',(0,0),(-1,-1),'TOP',),
+            ]))
+      for j in range(len(msizes)):
+         itemTargets._argW[j] = msizes[j]/tsize*7*inch
+      itemTargets.hAlign = "LEFT"
+      itemTargets.spaceBefore = 0.5*fontSize
+   
+   items.append( itemTargets )
+   cover.build(items)
+   return report.getvalue()

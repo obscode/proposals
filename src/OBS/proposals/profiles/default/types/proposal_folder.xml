@@ -57,4 +57,14 @@
       visible="True">
      <permission value="Modify portal content"/>
    </action>
+ <action title="Genrate Target TGZ"
+      action_id="generate_targ" 
+      category="object_buttons" 
+      condition_expr=""
+      icon_expr="" 
+      link_target=""
+      url_expr="string:${object_url}/generate_targ" 
+      visible="True">
+     <permission value="Modify portal content"/>
+   </action>
 </object>
