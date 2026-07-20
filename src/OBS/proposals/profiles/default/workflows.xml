@@ -5,5 +5,8 @@
     <type type_id="proposal">
       <bound-workflow workflow_id="proposal_workflow"/>
     </type>
+    <type type_id="TBDproposal">
+      <bound-workflow workflow_id="proposal_workflow"/>
+    </type>
   </bindings>
 </object>
