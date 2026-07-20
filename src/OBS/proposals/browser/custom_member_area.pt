@@ -44,9 +44,11 @@
             <td>
                <a tal:attributes="href python:url+'/edit?_authenticator='+token">Edit</a>
                &nbsp;|&nbsp;
+               <a tal:attributes="href python:url+'/@@sharing?_authenticator='+token">Share</a>
+               &nbsp;|&nbsp;
                <a tal:condition="python: item.status()=='Ready for Submission'"
                   tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=submit&came_from='+context.absolute_url()">Submit</a>
-               <a tal:condition="python: state=='pending'"
+               <a tal:condition="python: state=='submitted'"
                   tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=retract&came_from='+context.absolute_url()">Retract</a>
             </td>
           </tal:this_item>
@@ -55,8 +57,14 @@
     </div>
     <br>
     <button class="submit-widget btn btn-primary" 
+            tal:condition="python: not view.TBDactive()"
             tal:attributes="onclick view/addProp">
             New Proposal
+            </button>
+    <button class="submit-widget btn btn-primary" 
+            tal:condition="view/TBDactive"
+            tal:attributes="onclick view/addTBDProp">
+            New TBD Proposal
             </button>
 
   </div>

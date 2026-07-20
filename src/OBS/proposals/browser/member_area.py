@@ -31,7 +31,17 @@ class CustomMemberAreaView(BrowserView):
          sort_order='reverse'
       )
 
+   def TBDactive(self):
+      '''Return True if TBD proposals are active'''
+      TBD = api.portal.get_registry_record("proposals.TBD")
+      return TBD
+
+
    def addProp(self):
       return "window.location='"+self.context.absolute_url() + \
              "/++add++proposal" + "';"
 
+
+   def addTBDProp(self):
+      return "window.location='"+self.context.absolute_url() + \
+             "/++add++TBDproposal" + "';"

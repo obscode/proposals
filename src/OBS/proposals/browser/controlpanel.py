@@ -89,6 +89,12 @@ class IProposalsSettings(Interface):
       required=False,
    )
 
+   TBD = schema.Bool(
+      title='TBD Proposal',
+      description="TBD Proposals are open for submission",
+      required=False,
+   )
+
    run_vocab = schema.Text(
       title="Run Vocabulary",
       description="Vocabulary of run names, one per line",

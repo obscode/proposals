@@ -1,12 +1,13 @@
 from plone import schema
 from plone import api
 from plone.dexterity.content import Container
+from plone.dexterity.browser.add import DefaultAddForm, DefaultAddView
 from plone.supermodel import model
 from zope.interface import implementer
 from Products.Five.browser import BrowserView
 from Products.statusmessages.interfaces import IStatusMessage
 from plone.namedfile.file import NamedBlobFile
-from .generate_pdf import generate_pdf
+from .generate_pdf import generate_pdf,TBDgenerate_pdf
 from tarfile import TarFile, TarInfo
 from io import BytesIO,StringIO
 from . import utils
@@ -30,18 +31,6 @@ class IProposalFolder(model.Schema):
 @implementer(IProposalFolder)
 class ProposalFolder(Container):
     """Instance class"""
-    def create(self, data):
-        # override to give custom short name
-
-        if self.is_tbd:
-           fname = "TBDproposal_listing"+self.semester.lower()
-        else:
-           fname = "proposal_listing"+self.semester.lower()
-
-        # Create object the usual way
-        obj = super().create(data)
-        obj.id = fname
-        return obj
 
     def get_tgz_file(self):
         """Return the tgz file if it exists, else None"""
@@ -52,7 +41,29 @@ class ProposalFolder(Container):
 
     def Title(self):
         """Return the title of the folder"""
-        return "Proposals for semester "+self.semester
+        if self.is_tbd:
+           return "TBD Proposals for semester "+self.semester
+        else:
+           return "Proposals for semester "+self.semester
+
+class AddForm(DefaultAddForm):
+
+    def create(self, data):
+        # override to give custom short name
+
+        if data['is_tbd']:
+           fname = "TBDproposal_listing"+data['semester'].lower()
+        else:
+           fname = "proposal_listing"+data['semester'].lower()
+
+        # Create object the usual way
+        obj = super().create(data)
+        print("Object ID:", fname)
+        obj.id = fname
+        return obj
+
+class AddView(DefaultAddView):
+    form = AddForm
 
         
 class View(BrowserView):
@@ -62,8 +73,13 @@ class View(BrowserView):
         """Return all proposals on the site with given semesters"""
         catalog = self.context.portal_catalog
         semester = self.context.semester
-        brains = api.content.find(
-            portal_type='proposal', semester=semester)
+        TBD = self.context.is_tbd
+        if TBD:
+           brains = api.content.find(
+               portal_type='TBDproposal', semester=semester)
+        else:
+           brains = api.content.find(
+               portal_type='proposal', semester=semester)
         return brains
 
 class TGZView(BrowserView):
@@ -75,8 +91,12 @@ class TGZView(BrowserView):
         tid = self.context.id+".tgz"
 
         # All proposals for this semester
-        brains = api.content.find(
-            portal_type='proposal', semester=semester, state='submitted')
+        if self.context.is_tbd:
+           brains = api.content.find(
+               portal_type='TBDproposal', semester=semester, state='submitted')
+        else:
+           brains = api.content.find(
+               portal_type='proposal', semester=semester, state='submitted')
 
         # Frist, check if the tgz file already exists, and if so, only re-make
         # if any proposal is newer than the tgzfile.
@@ -99,18 +119,25 @@ class TGZView(BrowserView):
                     fn = name.split()[0][0].lower()
                     ln = name.split()[-1].lower()
                     idx = 0
-                    pdfname = f"{fn}_{ln}_{proposal.semester}_{idx}.pdf" 
+                    if self.context.is_tbd:
+                        prefix = 'tbd'
+                    else:
+                        prefix = ''
+                    pdfname = f"{fn}_{ln}_{prefix}{proposal.semester}_{idx}.pdf" 
                     while pdfname in pdf_names:
                         idx += 1
                         pdfname = f"{fn}_{ln}_{proposal.semester}_{idx}.pdf" 
                     pdfname = pdfname.replace("_0.pdf",".pdf")
                     pdf_names.append(pdfname)
                     
-                    pdf = generate_pdf(proposal)
+                    if self.context.is_tbd:
+                        pdf = TBDgenerate_pdf(proposal)
+                    else:
+                        pdf = generate_pdf(proposal)
                     # Create a file-like object for the PDF
                     pdf_file = BytesIO(pdf)
                     # Create a TarInfo object for the PDF file
-                    tarinfo = TarInfo(name=f"{tid}/{proposal.id}.pdf")
+                    tarinfo = TarInfo(name=f"{tid}/{pdfname}")
                     tarinfo.size = len(pdf)
                     tarinfo.mtime = proposal.modified()
                     # Add the PDF file to the tar archive
@@ -141,6 +168,13 @@ class TargView(BrowserView):
     def __call__(self):
         messages = IStatusMessage(self.request)
         semester = self.context.semester
+
+        if self.context.is_tbd:
+            # No target lists
+            messages.add(u"TBD Proposals do not have target lists", type="error")
+            item_url = self.context.absolute_url()
+            return self.request.response.redirect(item_url)
+
         tid = self.context.id+"_targ.tgz"
         tdir = self.context.id+"_targ"
 

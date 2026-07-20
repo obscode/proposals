@@ -238,6 +238,128 @@ def generate_pdf(self):
    return result
 
 
+def TBDgenerate_pdf(self):
+   "Generate the cover page and append the PDFs for a TBD Proposal (simpler than"
+   "regular proposals)"
+#   try:
+   name = self.pi_name
+   fn = name.split()[0][0].lower()
+   ln = name.split()[-1].lower()
+   filename = "%s_%s_%s.pdf" % (ln,fn,self.semester)
+   
+   report = StringIO()
+   cover = SimpleDocTemplate(report,pagesize=letter,leftMargin=0.5*inch,rightMargin=0.5*inch)
+   style = styles.getSampleStyleSheet()
+   items = [ ]
+   
+   fontSize = 9
+   kstyle = ParagraphStyle( name='Key', fontName='Times-Bold', fontSize=fontSize, leading=fontSize/2.)
+   istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize/2.)
+   
+   infoPI = [
+      ("Semester",self.semester),
+      ("Investigator",self.pi_name),
+      ("Department",self.department),
+      ("Email",self.email),
+      ("Telephone",self.telephone),
+      ]
+   
+   elements = [ [Paragraph(key+":",kstyle), Paragraph(info,istyle)] for key,info in infoPI]
+   itemPI = Table(elements)
+   itemPI.setStyle(TableStyle([
+      ('BOX',(0,0),(1,4),0.25,colors.black,),
+      ('BOTTOMPADDING',(0,4),(1,4),fontSize/1.,),
+      ]))
+   itemPI._argW[0] = 1.2*inch
+   itemPI._argW[1] = 2.8*inch
+   itemPI.hAlign = "LEFT"
+   items.append( itemPI)
+   
+   getkey = lambda dict,key: (key in dict and str(dict[key])) or ("")
+   
+   kstyle = ParagraphStyle( name='Key', fontName='Times-Bold', fontSize=fontSize, leading=fontSize)
+   istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize)
+   
+   for jp,project in enumerate(self.projects):
+      if project:
+         elements = [
+                  [Paragraph("Project No. %d:" % (jp+1),kstyle), Paragraph(project["proj_title"],istyle)],
+                  [Paragraph("Priority:",kstyle), Paragraph(project["priority"],istyle)],
+                  [Paragraph("Co-Investigators:",kstyle), Paragraph(("coIs" in project and project["coIs"]) or "None",istyle)],
+                  ]
+         itemProject = Table(elements)
+         itemProject.spaceBefore = 1.0*fontSize
+         itemProject.setStyle(TableStyle([
+            ('BOTTOMPADDING',(0,2),(1,2),fontSize/1.,),
+            ('VALIGN',(0,0),(-1,-1),'TOP',),
+            ]))
+         itemProject._argW[0] = 1.2*inch
+         itemProject._argW[1] = 5.3*inch
+         itemProject.hAlign = "LEFT"
+   
+         itemRunsHeader = Paragraph("Observing Runs:",kstyle)
+         itemRunsHeader.spaceBefore = 1*fontSize
+   
+         elements = [[itemProject],]
+         itemRunsTable = Table(elements)
+         itemRunsTable.setStyle(TableStyle([
+               ('BOX',(0,0),(-1,-1),0.25,colors.black,),
+               ('VALIGN',(0,0),(-1,-1),'TOP',),
+               ]))
+         itemRunsTable.spaceBefore = 1.0*fontSize
+         itemRunsTable.hAlign = "LEFT"
+         items.append( itemRunsTable)
+   
+   itemConflicts = Paragraph("Conflicts:",kstyle)
+   itemConflicts.spaceBefore = 2*fontSize
+   items.append( itemConflicts)
+   
+   if self.conflicts:
+      itemConflicts = Paragraph(str(self.conflicts),istyle)
+      itemConflicts.spaceBefore = 0.5*fontSize
+      items.append( itemConflicts)
+   else:
+      itemConflicts = Paragraph("None",istyle)
+      itemConflicts.spaceBefore = 0.5*fontSize
+      items.append( itemConflicts)
+   
+   itemRequire = Paragraph("Special or Additional Requirements:",kstyle)
+   itemRequire.spaceBefore = 2*fontSize
+   items.append( itemRequire)
+   
+   if self.requirements:
+      itemRequire = Paragraph(str(self.requirements),istyle)
+      itemRequire.spaceBefore = 0.5*fontSize
+      items.append( itemRequire)
+   else:
+      itemRequire = Paragraph("None",istyle)
+      itemRequire.spaceBefore = 0.5*fontSize
+      items.append( itemRequire)
+   
+   items.append( PageBreak())
+   
+   cover.build(items)
+   
+   pdfCover = PdfReader(report)
+   output = PdfWriter()
+   #numPages = pdfCover.getNumPages()
+   numPages = len(pdfCover.pages)
+   [output.add_page(pdfCover.pages[j]) for j in range(numPages)]
+   
+   if self.justification is not None:
+      just = self.justification.data
+      pdfStream = StringIO(just)
+      pdfReader = PdfReader(pdfStream)
+      numPages = len(pdfReader.pages)
+      [output.add_page(pdfReader.pages[j]) for j in range(numPages)]
+   
+   proposal = StringIO()
+   output.write(proposal)
+   result = proposal.getvalue()
+   
+   return result
+
+
 def generate_targ(targets):
    '''Given a list of targets with RA,DEC, make a PDF table. We are simply
    making a table from list of lists. The parser has made sure it has the

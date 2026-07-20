@@ -68,6 +68,24 @@ def validate_PDF_SJ(value):
       raise Invalid(f"PDF exceeds {maxpages} pages")
    return True
 
+def validate_PDF_TBD_SJ(value):
+   # First make sure it's a PDF
+   if value is None: return True
+   maxpages = 1
+
+   try:
+      pdf = value.open()
+      reader = PdfReader(pdf)
+
+   except:
+      pdf.close()
+      raise Invalid("File is not a valid PDF")
+   npages = len(reader.pages)
+   pdf.close()
+   if npages > maxpages:
+      raise Invalid(f"PDF exceeds {maxpages} pages")
+   return True
+
 
 def validate_PDF_PD(value):
    # First make sure it's a PDF

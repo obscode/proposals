@@ -5,11 +5,13 @@
 <body>
 
 <metal:main fill-slot="main">
-    <h2>Proposal Listing <span tal:content="context/semester">2026A</span></h2>
+    <h2>
+      <span tal:condition="context/is_tbd">TBD </span>Proposal Listing 
+      <span tal:content="context/semester">2026A</span>
+    </h2>
 
 
-    <tal:tgz define="tgzfile context/get_tgz_file;
-                     contents context/@@contentlisting">
+    <tal:tgz define="contents context/@@contentlisting">
         <div tal:condition="contents">
            <table class="table table-striped data-table table-bordered" id="proposal-toc-table">
                <thead>
@@ -46,6 +48,7 @@
            </aside>
         </div>
     </tal:tgz>
+    <br>
     <div tal:define="results view/get_items">
         <!-- Display message if the collection is empty -->
         <div class="portalMessage info" tal:condition="not: results">
@@ -53,8 +56,8 @@
         </div>
 
         <!-- Results Table -->
-        <table class="table table-striped data-table table-bordered" id="custom-collection-table"
-                  tal:condition="results">
+        <table tal:condition="python: (not context.is_tbd) and results"
+            class="table table-striped data-table table-bordered" id="custom-collection-table">
             <thead>
                 <tr>
                     <th i18n:translate="">Investigator</th>
@@ -78,7 +81,7 @@
               <tal:define define="item python: brain.getObject();
                                  url brain/getURL;
                                  state brain/review_state">
-                <tr tal:repeat="run item/runs">
+                <tr tal:repeat="run item/runs | nothing">
                     <!-- Title with clickable link to the item -->
                     <td> <span tal:content="item/pi_name"
                                tal:condition="repeat/run/start">Name</span> </td>
@@ -121,6 +124,46 @@
                 </tr>
               </tal:define>
               </tal:block>
+            </tbody>
+        </table>
+        <table tal:condition="python: context.is_tbd and results"
+            class="table table-striped data-table table-bordered" id="custom-collection-table">
+            <thead>
+                <tr>
+                    <th i18n:translate="">Investigator</th>
+                    <th i18n:translate="">State</th>
+                    <th i18n:translate="">Dept.</th>
+                    <th i18n:translate="">Modified</th>
+                    <th i18n:translate="">HTML</th>
+                    <th i18n:translate="">PDF</th>
+                </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="brain results">
+                 <tal:define define="item python: brain.getObject();
+                             url brain/getURL;
+                             state brain/review_state">
+                    <!-- Title with clickable link to the item -->
+                    <td> <span tal:content="item/pi_name">Name</span> </td>
+                    <td>
+                      <span tal:condition="python: state == 'draft'"
+                             style="color: orange;">pending</span>
+                       <span tal:condition="python: state == 'submitted'"
+                             style="color: green;">submitted</span>
+                    </td>
+                    <td> <span tal:content="item/department">department</span> </td>
+                    <td> 
+                       <span tal:content="python: context.toLocalizedTime(item.ModificationDate())">
+                       Jan 01, 2026</span>
+                    </td>
+                    <td>
+                       <a tal:attributes="href url">HTML</a>
+                    </td>
+                    <td>
+                        <a tal:attributes="href python: url+'/pdf'"> PDF </a>
+                    </td>
+                 </tal:define>
+              </tr>
             </tbody>
         </table>
 

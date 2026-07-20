@@ -1,0 +1,130 @@
+<metal:use use-macro="context/@@ploneform-macros/titlelessform">
+  <metal:description-slot fill-slot="formtop">
+    <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js"> </script>
+    <P>Required fields are marked with a red dot.</P>
+  </metal:description-slot>
+  <metal:fields-slot fill-slot="fields">
+    <input name="fieldset" type="hidden"
+           tal:define="current_fieldset request/fieldset | python:None;"
+           tal:condition="python: has_groups and enable_form_tabbing and current_fieldset is not None"
+           tal:attributes="value current_fieldset;"
+    >
+    <fieldset id="fieldset-default"
+              tal:omit-tag="not:show_default_label"
+    >
+
+      <legend tal:condition="show_default_label"
+              tal:content="default_fieldset_label"
+              tal:attributes="
+                id string:fieldsetlegend-default;
+              "
+      >Form name</legend>
+       <table>
+         <tr>
+           <td  style="padding-right:  50px; vertical-align: top;"
+                tal:define="widget python:view.widgets['pi_name']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+           <td style="padding-right:  50px; vertical-align: top;"
+                 tal:define="widget python:view.widgets['department']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+           <td style="padding-right:  50px; vertical-align: top;"
+                 tal:define="widget python:view.widgets['email']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+           <td style="padding-right:  50px; vertical-align: top;"
+                 tal:define="widget python:view.widgets['telephone']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+         </tr>
+         <tr>
+            <!-- Projects -->
+            <td tal:define="widget python:view.widgets['projects']" colspan=4 border=1>
+                <metal:field use-macro="context/@@ploneform-macros/field"/>
+            </td>
+          </tr>
+          <tr>
+           <td colspan=4 border=1 tal:define="widget python:view.widgets['requirements']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+          </tr>
+          <tr>
+           <td colspan=4 border=1 tal:define="widget python:view.widgets['conflicts']">
+             <metal:field use-macro="context/@@ploneform-macros/field"/>
+           </td>
+          </tr>
+       </table>
+
+       <HR>
+       <div tal:define="widget python:view.widgets['justification']">
+                <metal:field use-macro="context/@@ploneform-macros/field"/>
+                Science Justification</div>
+
+    </fieldset>
+    <!-- Secondary fieldsets -->
+    <tal:block condition="has_groups"
+               tal:repeat="group groups"
+    >
+      <fieldset tal:define="
+                  normalizeString nocall:context/@@plone/normalizeString;
+                  fieldset_label group/label;
+                  fieldset_name python:getattr(group, '__name__', False) or getattr(group.label, 'default', False) or fieldset_label;
+                  fieldset_name python:normalizeString(fieldset_name);
+                  "
+                tal:attributes="
+                  id string:fieldset-${fieldset_name};
+                  class string:kssattr-fieldset-${fieldset_name};
+                  data-fieldset fieldset_name;
+                  "
+      >
+
+        <legend tal:condition="fieldset_label"
+                tal:content="fieldset_label"
+                tal:attributes="
+                  id string:fieldsetlegend-${fieldset_name};
+                  "
+                i18n:translate=""
+        >Form name</legend>
+        <h2 tal:condition="fieldset_label"
+                tal:content="fieldset_label"
+                tal:attributes="
+                  id string:fieldsetlegend-${fieldset_name};
+                  "
+                i18n:translate=""
+        >Form name</h2>
+
+        <p tal:define="
+                       group_description group/description|nothing;
+                      "
+          tal:condition="group_description"
+          tal:content="structure group_description"
+          i18n:translate=""
+        >
+        Description
+        </p>
+
+        <tal:block tal:define="
+          errors group/widgets/errors;
+          "
+          tal:condition="errors"
+          tal:repeat="error errors"
+        >
+          <div class="field error"
+               tal:condition="not:nocall:error/widget"
+               tal:content="structure error/render"
+          ></div>
+        </tal:block>
+
+        <tal:block define="
+                      view nocall:group;
+                      "
+        >
+          <metal:block use-macro="context/@@ploneform-macros/widget_rendering" />
+        </tal:block>
+
+      </fieldset>
+    </tal:block>
+  </metal:fields-slot>
+
+</metal:use>

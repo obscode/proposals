@@ -2,5 +2,6 @@
 <object name="portal_types" meta_type="Plone Types Tool">
  <property name="title">Controls the available content types in your portal</property>
  <object name="proposal" meta_type="Dexterity FTI"/>
+ <object name="TBDproposal" meta_type="Dexterity FTI"/>
  <object name="proposal_folder" meta_type="Dexterity FTI"/>
 </object>
