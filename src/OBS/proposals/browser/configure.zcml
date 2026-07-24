@@ -197,6 +197,14 @@
       name="proposals.SERVICE"
       component="OBS.proposals.content.vocabularies.SERVICE"/>
 
+  
+  <!-- Override the default calendar portlet renderer -->
+  <plone:portletRenderer
+    portlet="plone.app.event.portlets.portlet_calendar.ICalendarPortlet"
+    class=".calendar.MyCustomCalendarRenderer"
+    layer="OBS.proposals.interfaces.IObsProposalsLayer"
+    />
+
   <!-- Upgrades -->
   <genericsetup:upgradeStep
     title="Reload FTI info"
