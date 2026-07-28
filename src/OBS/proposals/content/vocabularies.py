@@ -20,8 +20,10 @@ NUMBERS = makeVocabFromList(['1','2','3','4','5'])
 
 @provider(IVocabularyFactory)
 def RUNS(context):
-   runs = api.portal.get_registry_record("proposals.run_vocab")
-   runs = [run.strip() for run in runs.split('\n')]
+   runs = api.portal.get_registry_record("proposals.block_vocab")
+   semester = api.portal.get_registry_record("proposals.semester")
+   runs = [run.strip().split(',')[0] for run in runs.split('\n')]
+   runs = [run+"_"+semester for run in runs]
    return makeVocabFromList(runs)
 
 @provider(IVocabularyFactory)

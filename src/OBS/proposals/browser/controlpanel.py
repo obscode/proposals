@@ -12,31 +12,17 @@ dynamically. This used to be done with the portal_properties,
 which no longer exists.'''
 
 default_block_vocab = '''11 Jan 2026,26 Jan 2026,16
-27 Jan 2026,10 Feb 2026,15
-11 Feb 2026,24 Feb 2026,14
-25 Feb 2026,11 Mar 2026,14
-12 Mar 2026,25 Mar 2026,14
-26 Mar 2026,09 Apr 2026,14
-10 Apr 2026,23 Apr 2026,14
-24 Apr 2026,08 May 2026,14
-09 May 2026,22 May 2026,14
-23 May 2026,07 Jun 2026,15
-08 Jun 2026,20 Jun 2026,13
-21 Jun 2026,06 Jul 2026,15'''
-
-default_run_vocab = '''2026_D01
-2026_L01
-2026_D02
-2026_L02
-2026_D03
-2026_L03
-2026_D04
-2026_L04
-2026_D05
-2026_L05
-2026_D06
-2026_L06
-'''
+L01,27 Jan 2026,10 Feb 2026,15
+D01,11 Feb 2026,24 Feb 2026,14
+L02,25 Feb 2026,11 Mar 2026,14
+D02,12 Mar 2026,25 Mar 2026,14
+L03,26 Mar 2026,09 Apr 2026,14
+D03,10 Apr 2026,23 Apr 2026,14
+L04,24 Apr 2026,08 May 2026,14
+D04,09 May 2026,22 May 2026,14
+L05,23 May 2026,07 Jun 2026,15
+D05,08 Jun 2026,20 Jun 2026,13
+L06,21 Jun 2026,06 Jul 2026,15'''
 
 default_instrument_vocab = '''Baade:IMACS:f/2,
 Baade:IMACS:f/4
@@ -76,8 +62,8 @@ class IProposalsSettings(Interface):
 
    block_vocab = schema.Text(
       title="Block Vacabulary",
-      description="One block per line, comma-separated lines with:"\
-                  " start date, end data and number of nights",
+      description="One run per line, comma-separated lines with:"\
+                  " run name, start date, end data and number of nights",
       default=default_block_vocab,
       required=False
    )
@@ -92,13 +78,6 @@ class IProposalsSettings(Interface):
    TBD = schema.Bool(
       title='TBD Proposal',
       description="TBD Proposals are open for submission",
-      required=False,
-   )
-
-   run_vocab = schema.Text(
-      title="Run Vocabulary",
-      description="Vocabulary of run names, one per line",
-      default=default_run_vocab,
       required=False,
    )
 
