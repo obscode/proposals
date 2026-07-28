@@ -117,6 +117,12 @@
               </td>
             </tal:block>
           </tr>
+          <tr>
+             <td colspan="7" style="text-align: center;">
+                <a tal:attributes="href python:context.absolute_url()+'/@@yearly-calendar'">
+                  Runs</a>
+             </td>
+          </tr>
         </tbody>
       </table>
     </div>

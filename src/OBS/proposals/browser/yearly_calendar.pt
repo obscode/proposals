@@ -1,0 +1,86 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      metal:use-macro="context/main_template/macros/master">
+<body>
+  
+  <metal:content-title fill-slot="content-title">
+        <h1 class="h2 mb-0">Runs</h1>
+  </metal:content-title>
+
+  <metal:content-core fill-slot="content-core">
+    <div id="yearly-calendar-view" class="container-fluid my-4">
+
+      <!-- Navigation & Title Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+      <!--  <a class="btn btn-outline-secondary"
+           tal:attributes="href python:context.absolute_url()+'/@@yearly-calendar?year='+str(view.year - 1)">
+           &laquo; ${python:view.year - 1}
+        </a>
+        <h1 class="h2 mb-0" tal:content="string:Calendar ${view/year}">Calendar 2026</h1>
+        <a class="btn btn-outline-secondary"
+           tal:attributes="href python:context.absolute_url()+'/@@yearly-calendar?year='+str(view.year + 1)">
+           ${python:view.year + 1} &raquo;
+        </a> -->
+      </div>
+
+      <!-- 12-Month Grid (3 months per row on desktop) -->
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" tal:repeat="month view/months_data">
+          
+          <div class="card portlet portletCalendar h-100 shadow-sm">
+            <div class="card-header bg-light fw-bold text-center">
+              <span tal:content="month/name">January</span>
+            </div>
+            
+            <div class="card-body p-2">
+              <table class="table table-sm table-bordered text-center align-middle mb-0 plone-calendar-table">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col" class="text-danger">S</th>
+                    <th scope="col">M</th>
+                    <th scope="col">T</th>
+                    <th scope="col">W</th>
+                    <th scope="col">T</th>
+                    <th scope="col">F</th>
+                    <th scope="col" class="text-primary">S</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr tal:repeat="week month/weeks">
+                    <td tal:repeat="day week"
+                        tal:attributes="class python:('table-primary fw-bold' if (day['is_today'] and day['in_month']) else '')+day['class']">
+                      
+                      <tal:block tal:condition="day/in_month">
+                          <span tal:condition="not: day/emoji">&nbsp;</span>
+                          <a tal:condition="day/has_events"
+                             tal:attributes="href day/url; 
+                                 title string:${day/events_count} event(s)">
+                            <span tal:content="day/day">1</span>
+                          </a>
+                          <span tal:condition="not:day/has_events"
+                                tal:content="day/day">1</span>
+                          <span tal:condition="day/emoji"
+                                  tal:content="structure: day/emoji">1</span>
+                          <span tal:condition="not: day/emoji">&nbsp;</span>
+                      </tal:block>
+
+                      <!-- <tal:block tal:condition="not:day/in_month">
+                        <span class="text-black-50" tal:content="day/day">31</span>
+                      </tal:block> -->
+
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </metal:content-core>
+</body>
+</html>

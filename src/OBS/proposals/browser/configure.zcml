@@ -205,6 +205,15 @@
     layer="OBS.proposals.interfaces.IObsProposalsLayer"
     />
 
+  <!-- Yearly Calendar -->
+  <browser:page
+      for="*"
+      name="yearly-calendar"
+      class=".calendar.YearlyCalendarView"
+      template="yearly_calendar.pt"
+      permission="zope2.View"
+      />
+
   <!-- Upgrades -->
   <genericsetup:upgradeStep
     title="Reload FTI info"
