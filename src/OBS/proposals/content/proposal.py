@@ -336,6 +336,13 @@ class Proposal(Container):
             return []
         return [run for run in self.runs if run['project'] == str(projnum)]
 
+    def get_num_projects(self):
+        '''Returns the number of projects in this proposal'''
+        prjs = []
+        for run in self.runs:
+            if run['project'] not in prjs:  prjs.append(run['project'])
+        return len(prjs)
+
     def get_toos(self, projnum):
         '''Return list of ToO requests for project number projnum'''
         if self.too is None:

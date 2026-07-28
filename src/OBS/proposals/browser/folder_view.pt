@@ -81,47 +81,50 @@
               <tal:define define="item python: brain.getObject();
                                  url brain/getURL;
                                  state brain/review_state">
-                <tr tal:repeat="run item/runs | nothing">
-                    <!-- Title with clickable link to the item -->
-                    <td> <span tal:content="item/pi_name"
-                               tal:condition="repeat/run/start">Name</span> </td>
-                    <td>
-                       <tal:subblock tal:condition="repeat/run/start">
-                        <span tal:condition="python: state == 'draft'"
-                               style="color: orange;">pending</span>
-                         <span tal:condition="python: state == 'submitted'"
-                               style="color: green;">submitted</span>
-                      </tal:subblock>
-                    </td>
-                    <td> <span tal:content="item/department"
-                               tal:condition="repeat/run/start">department</span> </td>
-                    <td> <span tal:content="repeat/run/number">1</span> </td>
-                    <td> <span tal:content="python: run['preferred']+'('+run['moon']+')'">D01(0)</span></td>
-                    <td> <span tal:content="run/telescope">Baade</span></td>
-                    <td> <span tal:content="python: run['inst1'].split(':')[1]"
-                               tal:condition="run/inst1">IMACS</span></td>
-                    <td> <span tal:content="python: run['inst2'].split(':')[1]"
-                               tal:condition="run/inst2">FIRE</span></td>
-                    <td> <span tal:content="run/service">No</span></td>
-                    <td> <span tal:content="run/in_person">No</span></td>
-                    <td> <span tal:content="run/nights">No</span></td>
-                    <td> 
-                       <span tal:content="python: context.toLocalizedTime(item.ModificationDate())"
-                              tal:condition="repeat/run/start">Jan 01, 2026</span>
-                    </td>
-                    <td>
-                       <a tal:attributes="href url"
-                           tal:condition="repeat/run/start">
-                           HTML
-                        </a>
-                    </td>
-                    <td>
-                        <a tal:attributes="href python: url+'/pdf'"
-                           tal:condition="repeat/run/start">
-                           PDF
-                        </a>
-                    </td>
-                </tr>
+                <tal:projects tal:repeat="proj python: range(1, item.get_num_projects()+1)">
+                  <tr tal:repeat="run python:item.get_runs(proj)">
+                      <!-- Title with clickable link to the item -->
+                      <td> <span tal:content="item/pi_name"
+                                 tal:condition="python: repeat.proj.start and repeat.run.start">Name</span> </td>
+                      <td>
+                         <tal:subblock tal:condition="python: repeat.proj.start and repeat.run.start">
+                          <span tal:condition="python: state == 'draft'"
+                                 style="color: orange;">pending</span>
+                           <span tal:condition="python: state == 'submitted'"
+                                 style="color: green;">submitted</span>
+                        </tal:subblock>
+                      </td>
+                      <td> <span tal:content="item/department"
+                                 tal:condition="python: repeat.proj.start and repeat.run.start">department</span> </td>
+                      <td> <span tal:content="run/project"
+                                 tal:condition="repeat/run/start">1</span> </td>
+                      <td> <span tal:content="python: run['preferred']+'('+run['moon']+')'">D01(0)</span></td>
+                      <td> <span tal:content="run/telescope">Baade</span></td>
+                      <td> <span tal:content="python: run['inst1'].split(':')[1]"
+                                 tal:condition="run/inst1">IMACS</span></td>
+                      <td> <span tal:content="python: run['inst2'].split(':')[1]"
+                                 tal:condition="run/inst2">FIRE</span></td>
+                      <td> <span tal:content="run/service">No</span></td>
+                      <td> <span tal:content="run/in_person">No</span></td>
+                      <td> <span tal:content="run/nights">No</span></td>
+                      <td> 
+                         <span tal:content="python: context.toLocalizedTime(item.ModificationDate())"
+                                tal:condition="python: repeat.proj.start and repeat.run.start">Jan 01, 2026</span>
+                      </td>
+                      <td>
+                         <a tal:attributes="href url"
+                             tal:condition="python: repeat.proj.start and repeat.run.start">
+                             HTML
+                          </a>
+                      </td>
+                      <td>
+                          <a tal:attributes="href python: url+'/pdf'"
+                             tal:condition="python: repeat.proj.start and repeat.run.start">
+                             PDF
+                          </a>
+                      </td>
+                  </tr>
+                </tal:projects>
               </tal:define>
               </tal:block>
             </tbody>
