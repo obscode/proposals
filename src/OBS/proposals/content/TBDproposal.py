@@ -168,6 +168,14 @@ class AddForm(DefaultAddForm):
     def updateActions(self):
         # If we already have a proposal, disable submit and do a message
         super().updateActions()
+
+        TBD = api.portal.get_registry_record("proposals.TBD")
+        print("TBD:",TBD)
+        if not TBD:
+            self.request.response.redirect(self.nextURL())
+            IStatusMessage(self.request).addStatusMessage(
+                "Sorry, TBD proposals are not open at this time", "error")
+
         res = noExistingProposal(self)
         if not res:
             self.request.response.redirect(self.nextURL())
