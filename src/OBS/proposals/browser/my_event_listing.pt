@@ -1,0 +1,166 @@
+<html metal:use-macro="context/main_template/macros/master">
+  <body>
+    <metal:custom_title fill-slot="content-title">
+      <h1 class="documentFirstHeading">
+          Night Summary for <span tal:content="python: request.get('date')">2026-01-01</span>
+      </h1>
+    </metal:custom_title>
+
+    <metal:custom_description fill-slot="content-description">
+       Below is a listing of events for this day as well as astronomically relevant
+       facts you may find useful for planning your observations.
+    </metal:custom_description>
+
+    <metal:content-core fill-slot="content-core">
+      <tal:def define="
+                 batch view/events;
+                 toLocalizedTime nocall: context/@@plone/toLocalizedTime;
+               ">
+
+        <section>
+
+          <tal:items repeat="data batch">
+
+            <article class="vevent tileItem d-flex align-items-start mb-3"
+                     itemscope
+                     itemtype="https://schema.org/Event"
+                     tal:define="
+                       startf python:view.date_speller(data.start);
+                     "
+            >
+
+              <ul class="hiddenStructure">
+                <li class="dtstart"
+                    itemprop="startDate"
+                    tal:content="data/start/isoformat"
+                >end</li>
+                <li class="dtend"
+                    itemprop="endDate"
+                    tal:content="data/end/isoformat"
+                >end</li>
+                <li class="location"
+                    itemprop="location"
+                    itemscope
+                    itemtype="http://schema.org/Place"
+                >
+                  <span itemprop="address"
+                        tal:content="data/location"
+                  >location</span>
+                </li>
+              </ul>
+
+              <div class="cal_date card me-3 flex-shrink-0 text-center">
+                <div class="cal_month card-header p-2"
+                     tal:content="string:${startf/month_name}"
+                >Oct.
+                </div>
+                <div class="card-body d-flex flex-column p-2">
+                  <h3 class="cal_day card-title fs-1 m-0"
+                      tal:content="string:${startf/day}"
+                  >15</h3>
+                  <span class="cal_wkday card-text"
+                        tal:content="python:startf['wkday_name']"
+                  >Tue</span>
+                </div>
+              </div>
+
+              <div class="cal_info clearfix">
+                <h2 class="tileHeadline">
+                  <a class="url"
+                     href=""
+                     itemprop="url"
+                     tal:attributes="
+                       href data/url;
+                     "
+                  >
+                    <span class="summary"
+                          itemprop="name"
+                          tal:content="data/title"
+                    >Title</span>
+                  </a>
+                </h2>
+                <div class="documentByLine">
+                  <tal:date tal:replace="structure python:view.formatted_date(data)" />
+                </div>
+
+                <p class="description"
+                   itemprop="description"
+                   tal:condition="data/description"
+                   tal:content="data/description"
+                ></p>
+
+
+              </div>
+
+            </article>
+
+          </tal:items>
+
+        </section>
+
+        <table class="data-table table" tal:define="astro python:view.astroFacts(request.get('date'))">
+
+          <tr>
+            <td width="15%">
+              Moon Phase:
+            </td>
+            <td>
+              <span tal:content="astro/moon">50%</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Sunset:
+            </td>
+            <td>
+              <span tal:content="astro/sunset">50%</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Twilight ends:
+            </td>
+            <td>
+              <span tal:content="astro/twiend">50%</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Mid Point:
+            </td>
+            <td>
+              <span tal:content="astro/midpoint">50%</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Twilight begins:
+            </td>
+            <td>
+              <span tal:content="astro/twibeg">50%</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Sunrise:
+            </td>
+            <td>
+              <span tal:content="astro/sunrise">50%</span>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              Duration:
+            </td>
+            <td>
+              <span tal:content="astro/duration">50%</span>
+            </td>
+          </tr>
+        </table>
+
+        <div metal:use-macro="context/batch_macros/macros/navigation"></div>
+
+      </tal:def>
+    </metal:content-core>
+  </body>
+</html>

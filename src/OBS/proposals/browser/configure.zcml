@@ -205,6 +205,15 @@
     layer="OBS.proposals.interfaces.IObsProposalsLayer"
     />
 
+  <!-- Custom event listing -->
+  <browser:page
+    name="my-event-list"
+    for="*"
+    class=".calendar.CustomEventListView"
+    template="my_event_listing.pt"
+    permission="zope2.View"
+  />
+
   <!-- Yearly Calendar -->
   <browser:page
       for="*"

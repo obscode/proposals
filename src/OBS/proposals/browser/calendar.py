@@ -2,12 +2,20 @@
 
 from plone import api
 from plone.app.event.portlets.portlet_calendar import Renderer as BaseCalendarRenderer
+from plone.app.event.browser.event_listing import EventListing
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five.browser import BrowserView
 from datetime import date, datetime, timedelta
 import calendar
 from math import floor
 import re
+try:
+   import astropy,astroplan
+except:
+   astropy = None
+   astroplan = None
+
+obs = astroplan.Observer.at_site('LCO')
 
 dl_pat = re.compile('([0-9]{4,4})_([DL])([0-9]{2,2})')
 
@@ -96,6 +104,10 @@ class MyCustomCalendarRenderer(BaseCalendarRenderer):
             return 'background-color: #DDDDDD;'
           
       return "background-color: #FFFFFF;"
+
+   def date_events_url(self, datestr):
+      portal_url = api.portal.get().absolute_url()
+      return f"{portal_url}/@@my-event-list?mode=day&date={datestr}"
 
 
 class YearlyCalendarView(BrowserView):
@@ -202,12 +214,14 @@ class YearlyCalendarView(BrowserView):
                day_url = None
                klass = ""
                if day_events:
-                  if len(day_events) == 1:
-                     day_url = day_events[0].getURL()
-                  else:
-                     day_url = f"{portal_url}/@@search?portal_type=Event&"\
-                                "start.query:record:list:date={d.isoformat()}"\
-                                "&start.range:record=min"
+                  #if len(day_events) == 1:
+                  #   day_url = day_events[0].getURL()
+                  #else:
+                  #   day_url = f"{portal_url}/@@search?portal_type=Event&"\
+                  #              "start.query:record:list:date={d.isoformat()}"\
+                  #              "&start.range:record=min"
+                  day_url = f"{portal_url}/@@my-event-list?mode=day&date="\
+                            f"{d.year}-{d.month}-{d.day}"
                   # Figure out if Light or Dark time.
                   for event in day_events:
                      res = dl_pat.search(event.Title)
@@ -237,3 +251,49 @@ class YearlyCalendarView(BrowserView):
          })
 
       return months        
+
+def LSTtoStr(lst):
+   """LST from astroplan is an Angle, not Time, so need formatter"""
+   hour = int(lst.hour)
+   minute = int((lst.hour-hour)*60)
+   sec = int((lst.hour-hour-minute/60)*60)
+   return " /  {:02d}:{:02d}:{:02d} LST".format(hour,minute,sec)
+
+class CustomEventListView(EventListing):
+
+   def astroFacts(self, datestr):
+      "Return a dictionary of useful stuff"
+
+      date = astropy.time.Time(datestr+"T23:00:00")
+      sunset = obs.sun_set_time(date, which="previous")
+      sunrise = obs.sun_rise_time(date, which="next")
+      if sunrise.jd - sunset.jd > 1:
+         "This shouldn't happen, but hey"
+         sunset = obs.sun_set_time(date, which="next")
+      twilight_end = obs.twilight_evening_astronomical(sunset, which ="next")
+      twilight_begin = obs.twilight_morning_astronomical(twilight_end, 
+                                                         which ="next")
+      sunrise = obs.sun_rise_time(twilight_begin, which="next")
+      midPoint = (twilight_end.jd+twilight_begin.jd)/2
+      midPoint = astropy.time.Time(midPoint, format='jd')
+      moon = astroplan.moon_illumination(midPoint)
+      duration = (sunrise.jd-sunset.jd)*24
+      lst_set = obs.local_sidereal_time(sunset)
+      lst_end = obs.local_sidereal_time(twilight_end)
+      lst_mid = obs.local_sidereal_time(midPoint)
+      lst_beg = obs.local_sidereal_time(twilight_begin)
+      lst_rise = obs.local_sidereal_time(sunrise)
+      form = "%H:%M:%S UT"
+      data ={ 
+         'datestr':datestr,
+         'sunset':sunset.strftime(form) + LSTtoStr(lst_set),
+         'sunrise':sunset.strftime(form) + LSTtoStr(lst_rise),
+         'midpoint':midPoint.strftime(form) + LSTtoStr(lst_mid),
+         'twiend':twilight_end.strftime(form) + LSTtoStr(lst_end),
+         'twibeg':twilight_begin.strftime(form) + LSTtoStr(lst_beg),
+         'moon':"{:.1f} %".format(moon*100),
+         'duration':"{:.1f} hours".format(duration),
+      }
+      return data
+
+

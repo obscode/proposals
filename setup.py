@@ -58,6 +58,8 @@ setup(
         "plone.app.dexterity",
         "PyPDF2",
         "reportlab",
+        "astropy",
+        "astroplan",
     ],
     extras_require={
         "test": [
