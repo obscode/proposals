@@ -51,7 +51,7 @@
       action_id="generate_tgz" 
       category="object_buttons" 
       condition_expr=""
-      icon_expr="" 
+      icon_expr="string:file-earmark-zip" 
       link_target=""
       url_expr="string:${object_url}/generate_tgz" 
       visible="True">
@@ -61,7 +61,7 @@
       action_id="generate_targ" 
       category="object_buttons" 
       condition_expr=""
-      icon_expr="" 
+      icon_expr="string:file-earmark-zip" 
       link_target=""
       url_expr="string:${object_url}/generate_targ" 
       visible="True">
