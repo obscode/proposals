@@ -376,7 +376,7 @@ class Proposal(Container):
 
         # At this point, we should be "private"
         if self.abstract is None or \
-           self.target_list is None or \
+           (self.target_list is None and not self.targets and not self.notargets) or \
            self.justification is None or \
            self.progress_to_date is None: return "Incomplete"
 
