@@ -102,7 +102,7 @@
 
           <tr>
             <td width="15%">
-              Moon Phase:
+              Moon Illumination:
             </td>
             <td>
               <span tal:content="astro/moon">50%</span>
