@@ -3,10 +3,13 @@
 from plone import api
 from plone.app.event.portlets.portlet_calendar import Renderer as BaseCalendarRenderer
 from plone.app.event.browser.event_listing import EventListing
+from plone.app.event.dx.behaviors import EventAccessor
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five.browser import BrowserView
+from Products.statusmessages.interfaces import IStatusMessage
 from datetime import date, datetime, timedelta
 import calendar
+import pytz
 from math import floor
 import re
 try:
@@ -17,7 +20,10 @@ except:
 
 obs = astroplan.Observer.at_site('LCO')
 
-dl_pat = re.compile('([0-9]{4,4})_([DL])([0-9]{2,2})')
+dl_pat = re.compile('([DL])([0-9]{2,2})_([0-9]{4,4})')
+
+month_names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov',
+               'Dec']
 
 # Compute Lunar phase
 
@@ -52,7 +58,7 @@ def get_lunar_phase(year: int, month: int, day: int) -> dict:
 
    # See if we are at any transitions
    emoji = ""
-   if moon_age <= 0.5:
+   if abs(moon_age) <= 0.5 or abs(moon_age-synodic_month) <= 0.5:
       emoji = "&#127761;"
    elif abs(moon_age-0.25*synodic_month) <= 0.5:
       emoji = "&#127763;"
@@ -96,12 +102,12 @@ class MyCustomCalendarRenderer(BaseCalendarRenderer):
          title = event.Title()
          res = dl_pat.search(title)
          if res:
-            year,dl,run = res.groups()
-         if dl == "D":
-            # dark run
-            return 'background-color: #AAAAAA;'
-         else:
-            return 'background-color: #DDDDDD;'
+            dl,run,year = res.groups()
+            if dl == "D":
+               # dark run
+               return 'background-color: #AAAAAA;'
+            else:
+               return 'background-color: #DDDDDD;'
           
       return "background-color: #FFFFFF;"
 
@@ -226,7 +232,7 @@ class YearlyCalendarView(BrowserView):
                   for event in day_events:
                      res = dl_pat.search(event.Title)
                      if res:
-                        year,dl,run = res.groups()
+                        dl,run,year = res.groups()
                      if dl == "D":
                         klass = "dark-run"
                      else:
@@ -297,3 +303,41 @@ class CustomEventListView(EventListing):
       return data
 
 
+class CreateRunEvents(BrowserView):
+
+   def __call__(self):
+      messages = IStatusMessage(self.request)
+      blocks = api.portal.get_registry_record("proposals.block_vocab")
+      semester = api.portal.get_registry_record("proposals.semester")
+      year = semester[:-1]  # Strip the A/B
+      blocks = [line.split(',') for line in blocks.strip().split('\n')]
+      portal = api.portal.get()
+      container = portal['events']
+      tzname = "America/Los_Angeles"
+      tz = pytz.timezone(tzname)
+      
+      for block in blocks:
+         DL = {"D":"Dark","L":"Ligh"}
+         run_name = "{}_{}".format(block[0],year)
+         if run_name.lower() in container:
+            api.content.delete(obj=container[run_name.lower()])
+         run_desc = "{} run of {} nights".format(DL[block[0][0]],block[3])
+         dt = datetime.strptime(block[1], "%d %b %Y")
+         start_dt = tz.localize(dt)
+         dt = datetime.strptime(block[2], "%d %b %Y")
+         end_dt = tz.localize(dt)
+         evt = api.content.create(
+            type="Event",
+            container=container,
+            id=run_name.lower(),
+            title=run_name,
+            description=run_desc,
+            start=start_dt,
+            end=end_dt,
+            timezone="America/Los_Angeles",
+            whole_day=True,
+            open_end=False)
+
+         api.content.transition(obj=evt, transition='publish')
+      messages.add(u"{} Events generated.".format(len(blocks)), type="info")
+      return self.request.response.redirect(self.context.absolute_url())

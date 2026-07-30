@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<object name="portal_actions" meta_type="Plone Actions Tool" 
+        xmlns:i18n="http://zope.org">
+    <object name="user" meta_type="CMF Action Category">
+        <object name="my_custom_view" meta_type="CMF Action" 
+                i18n:attributes="title description">
+            <property name="title" type="string" i18n:translate="">
+              Make Runs</property>
+            <property name="description" type="string" i18n:translate="">
+              Generate portal events that correspond to current block schedule</property>
+            <property name="url_expr" type="string">
+               string:${globals_view/navigationRootUrl}/@@GenerateRuns</property>
+            <property name="link_target" type="string"></property>
+            <property name="icon_expr" type="string">string:calendar-date</property>
+            <property name="available_expr" type="string"></property>
+            <property name="permissions" type="lines">
+                <element value="Modify Portal Content"/>
+            </property>
+            <property name="visible" type="boolean">True</property>
+        </object>
+    </object>
+</object>

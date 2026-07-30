@@ -222,6 +222,16 @@
       template="yearly_calendar.pt"
       permission="zope2.View"
       />
+  
+  <!-- Generate Events for each run -->
+  <browser:page
+    name="GenerateRuns"
+    for="Products.CMFPlone.interfaces.IPloneSiteRoot"
+    class=".calendar.CreateRunEvents"
+    permission="cmf.AddPortalContent"
+    layer="OBS.proposals.interfaces.IObsProposalsLayer"
+    />
+
 
   <!-- Upgrades -->
   <genericsetup:upgradeStep
