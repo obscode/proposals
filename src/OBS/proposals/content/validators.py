@@ -4,6 +4,25 @@ from io import BytesIO,StringIO
 import csv
 
 
+def extra_proposal_validation(data):
+   '''Here is where to do multi-field validation if needed'''
+   valid = True
+   messages = []
+   if data.runs is not None:
+      for run in data.runs:
+         if run['inst1'].find('M2FS') >=0 or \
+            (run['inst2'] and run['inst2'].find('M2FS') >= 0) and run['service']:
+            valid = False
+            messages.append("One cannot request service observing with M2FS")
+   if data.projects is not None and len(data.projects) > 1:
+      priorities = set([proj['priority'] for proj in data.projects])
+      if len(priorities) < len(data.projects):
+         valid = False
+         messages.append("Each project must have a different priority")
+
+   return valid,"\n".join(messages)
+   
+
 def validate_PDF(value):
    '''Check that the content is a propoer PDF'''
    if value is None:

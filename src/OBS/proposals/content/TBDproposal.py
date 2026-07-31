@@ -45,7 +45,7 @@ class ITBDProjectSchema(model.Schema):
    )
    proj_title = schema.TextLine(
        title='Project Title',
-       required=False,
+       required=True,
    )
 
    coIs = schema.TextLine(
@@ -165,6 +165,19 @@ class AddForm(DefaultAddForm):
     def update(self):
         super().update()
 
+        # To avoid the problem of field validation errors being printed
+        # on blank datagridfield rows, we have to look for such blank
+        # rows and null out their errors befofe the form is rendered.
+        # Turns out this is easy: if length of DGF widgets is 1, it's blank.
+
+        for field in ['projects']:
+            datagrid_widget = self.widgets.get(field)
+            if datagrid_widget and hasattr(datagrid_widget, 'widgets'):
+                if len(datagrid_widget.widgets) == 1:
+                    # a blank line, null out the errors
+                    for v,subw in datagrid_widget.widgets[0].widgets.items():
+                        subw.error = None
+
     def updateActions(self):
         # If we already have a proposal, disable submit and do a message
         super().updateActions()
@@ -213,6 +226,19 @@ class EditForm(DefaultEditForm):
 
     def update(self):
         super().update()
+
+        # To avoid the problem of field validation errors being printed
+        # on blank datagridfield rows, we have to look for such blank
+        # rows and null out their errors befofe the form is rendered.
+        # Turns out this is easy: if length of DGF widgets is 1, it's blank.
+
+        for field in ['projects']:
+            datagrid_widget = self.widgets.get(field)
+            if datagrid_widget and hasattr(datagrid_widget, 'widgets'):
+                if len(datagrid_widget.widgets) == 1:
+                    # a blank line, null out the errors
+                    for v,subw in datagrid_widget.widgets[0].widgets.items():
+                        subw.error = None
 
     def applyChanges(self, data):
         super().applyChanges(data)

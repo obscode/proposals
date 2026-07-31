@@ -11,7 +11,7 @@ from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
 from z3c.form.browser.text import TextWidget
 from z3c.form import button
-from zope.interface import implementer,invariant
+from zope.interface import implementer,invariant, Invalid
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five.browser import BrowserView
 from Products.CMFPlone.resources import add_resource_on_request
@@ -46,49 +46,49 @@ class IObservingRunSchema(model.Schema):
    )
    preferred = schema.Choice(
       vocabulary="proposals.RUNS",
-      required=False,
-      title="Pref"
+      required=True,
+      title="Preferred"
       #default='D01'
    )
 
    fromblock = schema.Choice(
       title='From',
       vocabulary="proposals.RUNS",
-      required=False,
+      required=True,
       #default='--'
    )
 
    toblock = schema.Choice(
       title='To',
       vocabulary="proposals.RUNS",
-      required=False,
+      required=True,
       #default='--'
    )
 
    nights = schema.Int(
       title='Nights',
-      required=False,
+      required=True,
    )
    directives.widget("nights", TextWidget, size=5)
 
    moon = schema.Choice(
       title='Moon',
       vocabulary="proposals.MOONPHASES",
-      required=False,
+      required=True,
       #default='--'
    )   
 
    telescope = schema.Choice(
        title='Telescope',
        vocabulary="proposals.TELESCOPES",
-       required=False,
+       required=True,
        #default='--'
    )
 
    inst1 = schema.Choice(
        title='instr. one',
        vocabulary="proposals.INSTRUMENTS",
-       required=False,
+       required=True,
        #default='--'
    )
 
@@ -115,7 +115,7 @@ class IObservingRunSchema(model.Schema):
 
    observers = schema.TextLine(
        title='Observers',
-       required=False,
+       required=True,
    )
 
 class IProjectSchema(model.Schema):
@@ -134,7 +134,7 @@ class IProjectSchema(model.Schema):
    )
    proj_title = schema.TextLine(
        title='Project Title',
-       required=False,
+       required=True,
    )
 
    coIs = schema.TextLine(
@@ -152,22 +152,22 @@ class ITOORequestSchema(model.Schema):
     )
     hours = schema.TextLine(
          title='Hours',
-         required=False,
+         required=True,
     )
     telescopes = schema.TextLine(
         title='Telescopes',
-        required=False,
+        required=True,
     )
 
 class ITargetSchema(model.Schema):
     """Schema for a single target in a target list"""
     name = schema.TextLine(
         title='Target Name',
-        required=False,
+        required=True,
     )
     ra1 = schema.TextLine(
         title='RA',
-        required=False,
+        required=True,
     )
     ra2 = schema.TextLine(
         title='RA end',
@@ -175,7 +175,7 @@ class ITargetSchema(model.Schema):
     )
     dec1 = schema.TextLine(
         title='Dec',
-        required=False,
+        required=True,
     )
     dec2 = schema.TextLine(
         title='Dec end',
@@ -295,6 +295,7 @@ class IProposal(model.Schema):
 
     projects = schema.List(
         title="Projects",
+        required = False,
         value_type=DictRow(
             title="Project List",
             schema=IProjectSchema,
@@ -305,6 +306,7 @@ class IProposal(model.Schema):
 
     runs = schema.List(
         title="Runs",
+        required = False,
         value_type=DictRow(
            title="Run",
            schema=IObservingRunSchema,
@@ -324,6 +326,12 @@ class IProposal(model.Schema):
     directives.widget("too", DataGridFieldFactory,
                      auto_append=False)
 
+    @invariant
+    def field_validation(data):
+        valid,message = validators.extra_proposal_validation(data)
+        if not valid:
+            raise Invalid(message)
+
 
 
 @implementer(IProposal)
@@ -331,7 +339,7 @@ class Proposal(Container):
     """Proposal instance class"""
     
     def get_runs_too(self, projnum):
-        '''Return list of runs for project number projnum'''
+        '''Return list of runs and too's for project number projnum'''
         runs = []
         if self.runs is not None:
            runs = runs + [run for run in self.runs \
@@ -361,12 +369,13 @@ class Proposal(Container):
         if self.runs is not None:
            runs = runs + [run for run in self.runs \
                           if run['project'] == str(projnum)]
-        if not runs: 
-           # Return dummy data
-           runs = [dict(project=projnum, preferred='--', fromblock='--',
-                  toblock='--', nights='--', moon='--',
-                  telescope='--', inst1='--:--', inst2='--:--',
-                  service='--', in_person='--', observers='--')]
+        return runs
+        #if not runs: 
+        #   # Return dummy data
+        #   runs = [dict(project=projnum, preferred='--', fromblock='--',
+        #          toblock='--', nights='--', moon='--',
+        #          telescope='--', inst1='--:--', inst2='--:--',
+        #          service='--', in_person='--', observers='--')]
 
         return runs
 
@@ -399,6 +408,15 @@ class Proposal(Container):
             missing.append("Need Scientific Justification")
         if self.progress_to_date is None:
             missing.append("Need Progress to Date")
+        if not self.projects:
+            missing.append("Need at least one project")
+        else:
+            for project in self.projects:
+                runs = self.get_runs(project['proj_number'])
+                toos = self.get_toos(project['proj_number'])
+                if not runs and not toos:
+                    missing.append("Need at least one run or ToO for "\
+                                   "project {}".format(project['proj_number']))
         if missing or conflict:
             message += "\n".join(missing+conflict)
             return message
@@ -412,12 +430,11 @@ class Proposal(Container):
            return "Submitted"
 
         # At this point, we should be "private"
-        if self.abstract is None or \
-           (self.target_list is None and not self.targets and not self.notargets) or \
-           self.justification is None or \
-           self.progress_to_date is None: return "Incomplete"
-
-        return "Ready for Submission"
+        message = self.statusMessage()
+        if message.find('satisfy') > 0:
+           return "Ready for Submission"
+        else:
+            return "Incomplete"
 
     def Title(self):
         '''Returns an appropriate title'''
@@ -502,6 +519,20 @@ class AddForm(DefaultAddForm):
     def update(self):
         super().update()
 
+        # To avoid the problem of field validation errors being printed
+        # on blank datagridfield rows, we have to look for such blank
+        # rows and null out their errors befofe the form is rendered.
+        # Turns out this is easy: if length of DGF widgets is 1, it's blank.
+
+        for field in ['projects','runs','too']:
+            datagrid_widget = self.widgets.get(field)
+            if datagrid_widget and hasattr(datagrid_widget, 'widgets'):
+                if len(datagrid_widget.widgets) == 1:
+                    # a blank line, null out the errors
+                    for v,subw in datagrid_widget.widgets[0].widgets.items():
+                        subw.error = None
+     
+
     def updateActions(self):
         # If we already have a proposal, disable submit and do a message
         super().updateActions()
@@ -542,6 +573,20 @@ class EditForm(DefaultEditForm):
 
     def update(self):
         super().update()
+
+        # To avoid the problem of field validation errors being printed
+        # on blank datagridfield rows, we have to look for such blank
+        # rows and null out their errors befofe the form is rendered.
+        # Turns out this is easy: if length of DGF widgets is 1, it's blank.
+
+        for field in ['projects','runs','too']:
+            datagrid_widget = self.widgets.get(field)
+            if datagrid_widget and hasattr(datagrid_widget, 'widgets'):
+                if len(datagrid_widget.widgets) == 1:
+                    # a blank line, null out the errors
+                    for v,subw in datagrid_widget.widgets[0].widgets.items():
+                        subw.error = None
+     
 
     def applyChanges(self, data):
         # Ensure we have a running number for each project:

@@ -56,7 +56,8 @@ def generate_pdf(self):
    kstyle = ParagraphStyle( name='Key', fontName='Times-Bold', fontSize=fontSize, leading=fontSize)
    istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize)
    
-   for jp,project in enumerate(self.projects):
+   projects = self.projects if self.projects is not None else []
+   for jp,project in enumerate(projects):
       if project:
          elements = [
                   [Paragraph("Project No. %d:" % (jp+1),kstyle), Paragraph(project["proj_title"],istyle)],
@@ -80,8 +81,9 @@ def generate_pdf(self):
          runKeys = "run","nights","moon","telescope","inst1","inst2","service","in_person","observers"
          runSizes = (4,8,5,5,7,7,7,6,7,16)
    
-         jruns = [jrun for jrun,run in enumerate(self.runs) if 'project' in run and run['project'] == str(jp+1)]
-         runscopy = deepcopy([run for run in self.runs if 'project' in run and run['project'] == str(jp+1)])
+         runs = self.runs if self.runs is not None else []
+         jruns = [jrun for jrun,run in enumerate(runs) if 'project' in run and run['project'] == str(jp+1)]
+         runscopy = deepcopy([run for run in runs if 'project' in run and run['project'] == str(jp+1)])
          if jruns:
             for runcopy in runscopy:
                if "service" in runcopy:
@@ -280,7 +282,8 @@ def TBDgenerate_pdf(self):
    kstyle = ParagraphStyle( name='Key', fontName='Times-Bold', fontSize=fontSize, leading=fontSize)
    istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize)
    
-   for jp,project in enumerate(self.projects):
+   projects = self.projects if self.projects is not None else []
+   for jp,project in enumerate(projects):
       if project:
          elements = [
                   [Paragraph("Project No. %d:" % (jp+1),kstyle), Paragraph(project["proj_title"],istyle)],

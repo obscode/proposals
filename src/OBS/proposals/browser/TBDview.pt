@@ -22,9 +22,8 @@
               tal:attributes="onclick view/shareTag">
               Share
           </button>
-          <button 
-              tal:attributes="class python: 'submit-widget btn btn-secondary'+[' disabled',''][status.find('satisfy') >= 0];
-                              onclick string: window.location='${context/absolute_url}/pdf'">
+          <button class="submit-widget btn btn-secondary"
+              tal:attributes="onclick string: window.location='${context/absolute_url}/pdf'">
               PDF
           </button>
           <button 
