@@ -43,7 +43,7 @@
            class="row" style="border: 2px solid #f1aeb5 ; background-color: #f8d7da;padding: 2px;">
            <aside class="col-12">
               <div class="portalMessage">
-                <p>TGZ file has not yet been genearted</p>
+                <p>TGZ file has not yet been generated</p>
               </div>
            </aside>
         </div>
@@ -81,8 +81,41 @@
               <tal:define define="item python: brain.getObject();
                                  url brain/getURL;
                                  state brain/review_state">
-                <tal:projects tal:repeat="proj python: range(1, item.get_num_projects()+1)">
-                  <tr tal:repeat="run python:item.get_runs(proj)">
+                <tal:noprojects tal:condition="not: item/projects">
+                  <tr>
+                      <td> <span tal:content="item/pi_name">Name</span></td>
+                      <td>
+                        <span tal:condition="python: state == 'draft'"
+                               style="color: orange;">pending</span>
+                         <span tal:condition="python: state == 'submitted'"
+                               style="color: green;">submitted</span>
+                      </td>
+                      <td> <span tal:content="item/department">department</span> </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> -- </td>
+                      <td> 
+                         <span tal:content="python: context.toLocalizedTime(item.ModificationDate())">
+                         Jan 01, 2026</span>
+                      </td>
+                      <td>
+                         <a tal:attributes="href url">
+                             HTML
+                          </a>
+                      </td>
+                      <td>
+                          <a tal:attributes="href python: url+'/pdf'"> PDF </a>
+                      </td>
+                  </tr>
+                </tal:noprojects>
+                <tal:projects tal:condition="item/projects"
+                    tal:repeat="proj python: range(1, item.get_num_projects()+1)">
+                  <tr tal:repeat="run python:item.get_runs_too(proj)">
                       <!-- Title with clickable link to the item -->
                       <td> <span tal:content="item/pi_name"
                                  tal:condition="python: repeat.proj.start and repeat.run.start">Name</span> </td>

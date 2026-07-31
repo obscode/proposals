@@ -274,7 +274,7 @@ class IProposal(model.Schema):
         title="No Specific Targets",
         description="Check this box if you do not have specific targets, for example "\
                     "because you are requesting ToO time for yet-to-be-discovered objects "\
-                    "or you have targets disributed at all across the sky.",
+                    "or you have targets disributed all across the sky.",
         required=False,
     )
 
@@ -330,15 +330,52 @@ class IProposal(model.Schema):
 class Proposal(Container):
     """Proposal instance class"""
     
+    def get_runs_too(self, projnum):
+        '''Return list of runs for project number projnum'''
+        runs = []
+        if self.runs is not None:
+           runs = runs + [run for run in self.runs \
+                          if run['project'] == str(projnum)]
+        if self.too is not None:
+           for too in self.too:
+              if too['project'] == str(projnum):
+                 runs.append(dict(project=str(projnum), preferred='ToO', 
+                         fromblock='ToO', toblock='ToO', 
+                         nights="{:.2f}".format(float(too['hours'])/24), 
+                         moon='--', telescope=too['telescopes'], 
+                         inst1='--:--', inst2='--:--', service='--', in_person='--',
+                         observers='--'))
+
+        if not runs: 
+           # Return dummy data
+           runs = [dict(project=projnum, preferred='--', fromblock='--',
+                  toblock='--', nights='--', moon='--',
+                  telescope='--', inst1='--:--', inst2='--:--',
+                  service='--', in_person='--', observers='--')]
+
+        return runs
+
     def get_runs(self, projnum):
         '''Return list of runs for project number projnum'''
-        if self.runs is None:
-            return []
-        return [run for run in self.runs if run['project'] == str(projnum)]
+        runs = []
+        if self.runs is not None:
+           runs = runs + [run for run in self.runs \
+                          if run['project'] == str(projnum)]
+        if not runs: 
+           # Return dummy data
+           runs = [dict(project=projnum, preferred='--', fromblock='--',
+                  toblock='--', nights='--', moon='--',
+                  telescope='--', inst1='--:--', inst2='--:--',
+                  service='--', in_person='--', observers='--')]
+
+        return runs
 
     def get_num_projects(self):
         '''Returns the number of projects in this proposal'''
+        if self.projects is None: return 0
+        return len(self.projects)
         prjs = []
+        if self.runs is None: return 0
         for run in self.runs:
             if run['project'] not in prjs:  prjs.append(run['project'])
         return len(prjs)
