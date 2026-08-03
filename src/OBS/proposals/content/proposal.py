@@ -629,6 +629,10 @@ class View(DefaultView):
         return "window.location='{}/edit?_authenticator={}'".format(
            self.context.absolute_url(), createToken())
 
+    def deleteTag(self):
+        return "window.location='{}/delete_confirmation?_authenticator={}'".format(
+           self.context.absolute_url(), createToken())
+
     def shareTag(self):
         return "window.location='{}/@@sharing?_authenticator={}'".format(
            self.context.absolute_url(), createToken())

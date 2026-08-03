@@ -32,6 +32,10 @@
               tal:content="view/transitionLab">
               Transition
           </button>
+          <button class="submit-widget btn btn-danger" 
+              tal:attributes="onclick view/deleteTag">
+              Delete
+          </button>
         </div>
         <br>
         <div tal:condition="python: status.find('satisfy') < 0"
