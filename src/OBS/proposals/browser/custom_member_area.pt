@@ -46,10 +46,16 @@
                &nbsp;|&nbsp;
                <a tal:attributes="href python:url+'/@@sharing?_authenticator='+token">Share</a>
                &nbsp;|&nbsp;
-               <a tal:condition="python: item.status()=='Ready for Submission'"
-                  tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=submit&came_from='+context.absolute_url()">Submit</a>
-               <a tal:condition="python: state=='submitted'"
-                  tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=retract&came_from='+context.absolute_url()">Retract</a>
+               <span tal:condition="python: item.status()=='Ready for Submission'">
+                  <a tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=submit&came_from='+context.absolute_url()">Submit</a>
+                  &nbsp;|&nbsp;
+               </span>
+
+               <span tal:condition="python: state=='submitted'">
+                 <a tal:attributes="href python:url+'/transition?_authenticator='+token+'&transition=retract&came_from='+context.absolute_url()">Retract</a>
+                  &nbsp;|&nbsp;
+               </span>
+                 <a tal:attributes="href python:url+'/delete_confirmation?_authenticator='+token">Delete</a>
             </td>
           </tal:this_item>
         </tr>
