@@ -73,12 +73,6 @@ class ITBDProposal(model.Schema):
         required=True,
     )
 
-    telephone = schema.TextLine(
-        title='Telephone',
-        required=True,
-    )
-
-
     conflicts = schema.Text(
         title='Conflicts',
         description='For example, a list of dates for which you cannot observe',

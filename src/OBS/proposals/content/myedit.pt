@@ -12,7 +12,6 @@
     <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js"></script>
     <script type="text/javascript" src="/++plone++OBS.proposals/next_prev.js"></script>
     <H1>Edit Proposal</H1>
-    <P>Required fields are marked with a red dot.</P>
   </metal:description-slot>
   <metal:fields-slot fill-slot="fields">
     <input name="fieldset" type="hidden"
@@ -30,6 +29,7 @@
                 id string:fieldsetlegend-default;
               "
       >Form name</legend>
+       <P>Required fields are marked with a red dot.</P>
        <table>
          <tr>
            <td  style="padding-right:  50px; vertical-align: top;"
@@ -44,10 +44,7 @@
                  tal:define="widget python:view.widgets['email']">
              <metal:field use-macro="context/@@ploneform-macros/field"/>
            </td>
-           <td style="padding-right:  50px; vertical-align: top;"
-                 tal:define="widget python:view.widgets['telephone']">
-             <metal:field use-macro="context/@@ploneform-macros/field"/>
-           </td>
+           <td></td>
          </tr>
          <tr>
             <!-- Projects -->

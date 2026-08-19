@@ -27,7 +27,7 @@
               PDF
           </button>
           <button 
-              tal:attributes="class python: 'submit-widget btn btn-secondary'+[' disabled',''][status.find('satisfy') >= 0];
+              tal:attributes="class python: 'submit-widget btn btn-success'+[' disabled',''][status.find('satisfy') >= 0];
                               onclick view/transitionTag"
               tal:content="view/transitionLab">
               Transition
@@ -70,8 +70,7 @@
             <tr>
               <td><strong>Department:</strong></td>
               <td tal:content="context/department">Department</td>
-              <td><strong>Telephone:</strong></td>
-              <td tal:content="context/telephone">Phone</td>
+              <td></td><td></td>
             </tr>    
           </table>
         </fieldset>

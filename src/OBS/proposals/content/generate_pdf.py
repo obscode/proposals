@@ -15,6 +15,7 @@ from reportlab.rl_config import defaultPageSize
 from copy import deepcopy
 import os
 
+
 def generate_pdf(self):
    "Generate the cover page and append the PDFs"
 #   try:
@@ -37,14 +38,13 @@ def generate_pdf(self):
       ("Investigator",self.pi_name),
       ("Department",self.department),
       ("Email",self.email),
-      ("Telephone",self.telephone),
       ]
    
    elements = [ [Paragraph(key+":",kstyle), Paragraph(info,istyle)] for key,info in infoPI]
    itemPI = Table(elements)
    itemPI.setStyle(TableStyle([
-      ('BOX',(0,0),(1,4),0.25,colors.black,),
-      ('BOTTOMPADDING',(0,4),(1,4),fontSize/1.,),
+      ('BOX',(0,0),(1,3),0.25,colors.black,),
+      ('BOTTOMPADDING',(0,3),(1,3),fontSize/1.,),
       ]))
    itemPI._argW[0] = 1.2*inch
    itemPI._argW[1] = 2.8*inch
@@ -211,12 +211,17 @@ def generate_pdf(self):
       numPages = len(pdfReader.pages)
       [output.add_page(pdfReader.pages[j]) for j in range(numPages)]
    
-   if self.target_list is not None:
-      targ = self.target_list.data
-      pdfStream = StringIO(targ)
-      pdfReader = PdfReader(pdfStream)
-      numPages = len(pdfReader.pages)
-      [output.add_page(pdfReader.pages[j]) for j in range(numPages)]
+   #if self.target_list is not None:
+   #   targ = self.target_list.data
+   #   pdfStream = StringIO(targ)
+   #   pdfReader = PdfReader(pdfStream)
+   #   numPages = len(pdfReader.pages)
+   #   [output.add_page(pdfReader.pages[j]) for j in range(numPages)]
+   pdfStream = StringIO(self.getTargetPDF())
+   pdfReader = PdfReader(pdfStream)
+   numPages = min(len(pdfReader.pages),3)
+   [output.add_page(pdfReader.pages[j]) for j in range(numPages)]
+   
    
    if self.justification is not None:
       just = self.justification.data
@@ -263,14 +268,13 @@ def TBDgenerate_pdf(self):
       ("Investigator",self.pi_name),
       ("Department",self.department),
       ("Email",self.email),
-      ("Telephone",self.telephone),
       ]
    
    elements = [ [Paragraph(key+":",kstyle), Paragraph(info,istyle)] for key,info in infoPI]
    itemPI = Table(elements)
    itemPI.setStyle(TableStyle([
-      ('BOX',(0,0),(1,4),0.25,colors.black,),
-      ('BOTTOMPADDING',(0,4),(1,4),fontSize/1.,),
+      ('BOX',(0,0),(1,3),0.25,colors.black,),
+      ('BOTTOMPADDING',(0,3),(1,3),fontSize/1.,),
       ]))
    itemPI._argW[0] = 1.2*inch
    itemPI._argW[1] = 2.8*inch

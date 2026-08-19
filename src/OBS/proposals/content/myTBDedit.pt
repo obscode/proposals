@@ -43,10 +43,7 @@
                  tal:define="widget python:view.widgets['email']">
              <metal:field use-macro="context/@@ploneform-macros/field"/>
            </td>
-           <td style="padding-right:  50px; vertical-align: top;"
-                 tal:define="widget python:view.widgets['telephone']">
-             <metal:field use-macro="context/@@ploneform-macros/field"/>
-           </td>
+           <td></td>
          </tr>
          <tr>
             <!-- Projects -->

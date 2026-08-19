@@ -168,18 +168,22 @@ class ITargetSchema(model.Schema):
     ra1 = schema.TextLine(
         title='RA',
         required=True,
+        constraint=validators.validate_RA,
     )
     ra2 = schema.TextLine(
         title='RA end',
         required=False,
+        constraint=validators.validate_RA,
     )
     dec1 = schema.TextLine(
         title='Dec',
         required=True,
+        constraint=validators.validate_DEC,
     )
     dec2 = schema.TextLine(
         title='Dec end',
         required=False,
+        constraint=validators.validate_DEC,
     )
     mag = schema.TextLine(
         title='Magnitude',
@@ -221,12 +225,6 @@ class IProposal(model.Schema):
         description='Email adress of the PI',
         required=True,
     )
-
-    telephone = schema.TextLine(
-        title='Telephone',
-        required=True,
-    )
-
 
     conflicts = schema.Text(
         title='Conflicts',
@@ -280,14 +278,14 @@ class IProposal(model.Schema):
 
     justification = NamedBlobFile(
         title='Scientific and Technical Justification (5 page max)',
-        description='A PDF with scientific and technical justifications of proposal, '\
+        description='A PDF with scientific and technical justifications for the proposal, '\
                     'including figures and references',
         required=False,
         constraint=validators.validate_PDF_SJ,
     )
     progress_to_date = NamedBlobFile(
-        title='Progress ot Date on Previous Allocations (1 page)',
-        description='A PDF discussion progress to adte on data obtained during nights '\
+        title='Progress to Date on Previous Allocations (1 page)',
+        description='A PDF discussing progress to date on data obtained during nights '\
                     'allocated over the previous 3 years',
         required=False,
         constraint=validators.validate_PDF_PD,
@@ -404,6 +402,10 @@ class Proposal(Container):
             missing.append("Need Abstract")
         if self.target_list is None and not self.targets and not self.notargets:
             missing.append("Need Target List")
+        if self.notargets and (self.targets is not None or self.target_list is not None):
+            conflict.append("Cannot have both 'No Specific Targets' and a target list")
+        if self.targets is not None and self.target_list is not None:
+            conflict.append("Either uplaod a targets list of enter targets manually, not both")
         if self.justification is None:
             missing.append("Need Scientific Justification")
         if self.progress_to_date is None:
@@ -445,14 +447,14 @@ class Proposal(Container):
         format as a list of lists (good for table views)'''
         if self.notargets:
             # Eeasy peasy
-            return []
+            return []," No specific targets specified"
         
         if self.targets is not None:
             l = [['Name','RA','RA end','DEC','DEC end','Mag','epoch']]
             for targ in self.targets:
                 l.append([targ['name'],targ['ra1'],targ['ra2'],targ['dec1'],
                           targ['dec2'],targ['mag'],targ['epoch']])
-            return l
+            return l,"Targets specified manually"
 
         if self.target_list is not None:
             # could be a CSV file or PDF. Try CSV first
@@ -461,20 +463,20 @@ class Proposal(Container):
                strdata = self.target_list.data.decode('utf-8')
                fileobj = StringIO(strdata)
                reader = csv.reader(fileobj)
-               l = utils.parse_csv(reader, str_output=str_output)
-               return l
+               l,message = utils.parse_csv(reader, str_output=str_output)
+               return l,message
             except:
                #fileobj.close()
                # PDF then, nothing to do
-               return []
-        return []
+               return [],"Error: problem parsing the CSV file."
+        return [], "Error: how did I get here?"
     
     def getTargetCSV(self):
         '''Get the targest list as a CSV based on what's in the proposal'''
         if self.notargets:
             return "Field,RA,DEC,Mag,Epoch\n"
 
-        l = self.getTargetsList(str_output=False)
+        l,message = self.getTargetsList(str_output=False)
         if len(l) == 0: return None
         csv = ""
         for row in l:
@@ -485,7 +487,7 @@ class Proposal(Container):
     
     def getTargetPDF(self):
         '''Get a PDF of the targets based on what's in the proposal'''
-        l = self.getTargetsList()
+        l,message = self.getTargetsList()
         if self.target_list is not None and len(l) == 0:
             # Must be a PDF
             return self.target_list.data

@@ -70,8 +70,7 @@
             <tr>
               <td><strong>Department:</strong></td>
               <td tal:content="context/department">Department</td>
-              <td><strong>Telephone:</strong></td>
-              <td tal:content="context/telephone">Phone</td>
+              <td></td><td></td>
             </tr>    
           </table>
         </fieldset>

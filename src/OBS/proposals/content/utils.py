@@ -79,7 +79,7 @@ def parse_csv(reader, str_output=True):
       elif field in ['ra','alpha','right ascension']:
          raidx = i
          continue
-      elif field in ['field','obj','object','region','name']:
+      elif field in ['field','obj','object','region','name','object name']:
          fidx = i
          continue
       elif field in ['epoch','date','date-obs']:
@@ -93,8 +93,8 @@ def parse_csv(reader, str_output=True):
       
       # Bare minimum:  RA's and DEC's
    if raidx is None or deidx is None: 
-      print('error:  no RA and/or DEC')
-      return None
+      #print('error:  no RA and/or DEC')
+      return None, "Error:  no RA and/or DEC found"
    data.append([])
    if fidx is not None:  data[-1].append('field')
    data[-1].append('RA')
@@ -110,14 +110,15 @@ def parse_csv(reader, str_output=True):
       # RA
       ra = parse_ra(row[raidx])
       if ra is None:  
-         print("failed to parse:",row[raidx])
-         return None
+         #print("failed to parse:",row[raidx])
+         return None, "Error:  failed to parse {}".format(row[raidx])
+
       if str_output: ra = dec2hms(ra)
       data[-1].append(ra)
       dec = parse_dec(row[deidx])
       if dec is None:  
-         print("failed to parse:",row[deidx])
-         return None
+         #print("failed to parse:",row[deidx])
+         return None, "Error:  failed to parse {}".format(row[deidx])
       if str_output: dec = dec2dms(dec)
       data[-1].append(dec)
       if midx is not None: data[-1].append(row[midx])
@@ -129,10 +130,10 @@ def parse_csv(reader, str_output=True):
                epoch = float(row[eidx])
             except:
                print("float didn't float:", row[eidx])
-               return None
+               return None, "Error:  failed to parse {}".format(row[eidx])
          data[-1].append(epoch)
       for idx in extras: data[-1].append(row[idx])
-   return data
+   return data, "Success"
    
 def pdf2ascii(pdf):
    '''Given PDF content as a bytes(), try to convert it to ascii'''
