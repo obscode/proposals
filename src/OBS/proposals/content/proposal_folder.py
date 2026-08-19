@@ -71,7 +71,6 @@ class View(BrowserView):
 
     def get_items(self):
         """Return all proposals on the site with given semesters"""
-        catalog = self.context.portal_catalog
         semester = self.context.semester
         TBD = self.context.is_tbd
         if TBD:
@@ -81,6 +80,7 @@ class View(BrowserView):
            brains = api.content.find(
                portal_type='proposal', semester=semester)
         return brains
+
 
 class TGZView(BrowserView):
     """View for ProposalFolder to generate a tgz file of all proposals"""
@@ -210,7 +210,7 @@ class TargView(BrowserView):
                     pdfname = pdfname.replace("_0.pdf",".pdf")
                     pdf_names.append(pdfname)
                     txtname = pdfname.replace('.pdf','.txt')
-                    csvname = pdfname.replace('.pdf','.txt')
+                    csvname = pdfname.replace('.pdf','.csv')
 
                     # Now figure out how to proceed based on what we've got
                     pdf = proposal.getTargetPDF()
