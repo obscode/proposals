@@ -382,7 +382,7 @@ def generate_targ(targets):
    tstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=16, leading=16)
    kstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=fontSize, leading=16)
    istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize)
-   items.append(Paragraph("Targets", tstyle))
+   items.append(Paragraph("Targets<br/>", tstyle))
 
    if not targets:
       items.append(Paragraph("This proposal has no specific targets", kstyle))
@@ -390,9 +390,10 @@ def generate_targ(targets):
       return report.getvalue()
 
    Titles = targets[0]
-   msizes = []
-   for i in range(len(Titles)):
+   msizes =[]
+   for i in range(3,len(Titles)):
       msizes.append(max([len(str(row[i])) for row in targets]))
+
    tsize = sum(msizes)
 
    elements = [ [ Paragraph(title,kstyle) for title in Titles]]
@@ -408,8 +409,11 @@ def generate_targ(targets):
             ('RIGHTPADDING',(0,0),(-1,-1),0,),
             ('VALIGN',(0,0),(-1,-1),'TOP',),
             ]))
+      # Set field, RA, DEC of fixed width, then divy up the rest
+      for j in range(3):
+         itemTargets._argW[j] = 1.2*inch
       for j in range(len(msizes)):
-         itemTargets._argW[j] = msizes[j]/tsize*7*inch
+         itemTargets._argW[j+3] = msizes[j]/tsize*3.4*inch
       itemTargets.hAlign = "LEFT"
       itemTargets.spaceBefore = 0.5*fontSize
    

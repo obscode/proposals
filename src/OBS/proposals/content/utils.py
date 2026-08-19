@@ -20,7 +20,7 @@ def dec2hms(val):
    val = (val - h)*60
    m = int(floor(val))
    val = (val - m)*60
-   return f"{h:02d}:{m:02d}:{val:5.2f}"
+   return f"{h:02d}:{m:02d}:{val:05.2f}"
 
 def dec2dms(val):
    '''convert decimal degrees to H:M:S format consistently'''
@@ -31,7 +31,7 @@ def dec2dms(val):
    m = int(floor(val))
    val = (val - m)*60
    pref = ["+","-"][neg]
-   return pref+f"{d:02d}:{m:02d}:{val:5.2f}"
+   return pref+f"{d:02d}:{m:02d}:{val:05.2f}"
 
 def parse_ra(rastr):
    '''Figure out RA and convert to decimal degrees'''
@@ -107,8 +107,8 @@ def parse_csv(reader, str_output=True):
    if fidx is not None:  data[-1].append('field')
    data[-1].append('RA')
    data[-1].append('DEC')
-   if ra2idx is not None:  data[-1].append('RA2')
-   if de2idx is not None:  data[-1].append('DEC2')
+   if ra2idx is not None and not str_output:  data[-1].append('RA2')
+   if de2idx is not None and not str_output:  data[-1].append('DEC2')
    if midx is not None:  data[-1].append('Mag')
    if eidx is not None:  data[-1].append('Epoch')
    for idx in extras: data[-1].append(header[idx])
@@ -118,27 +118,50 @@ def parse_csv(reader, str_output=True):
       data.append([])
       if fidx is not None: data[-1].append(row[fidx])
       # RA
-      ra = parse_ra(row[raidx])
+      ra = parse_ra(row[raidx])  # always a float or None
       if ra is None:  
          #print("failed to parse:",row[raidx])
-         return None, "Error:  failed to parse {}".format(row[raidx])
+         return None, "Error:  failed to parse '{}'".format(row[raidx])
+      if ra2idx is not None and row[ra2idx]:
+         ra2 = parse_ra(row[ra2idx])
+         if ra2 is None:  
+            #print("failed to parse:",row[ra2idx])
+            return None, "Error:  failed to parse '{}'".format(row[ra2idx])
+      else:
+         ra2 = None
 
-      if str_output: ra = dec2hms(ra)
-      data[-1].append(ra)
-      dec = parse_dec(row[deidx])
+      if str_output: 
+         ra = dec2hms(ra)
+         if ra2idx is not None and ra2 is not None:
+            ra = ra + " \u2014<br/> " + dec2hms(ra2)
+         data[-1].append(ra)
+      else:
+         data[-1].append(ra)
+         if raidx is not None: 
+            data[-1].append(ra2)
+
+      dec = parse_dec(row[deidx])  # always a float or None
       if dec is None:  
          #print("failed to parse:",row[deidx])
-         return None, "Error:  failed to parse {}".format(row[deidx])
-      if str_output: dec = dec2dms(dec)
-      data[-1].append(dec)
-      if ra2idx is not None:
-         ra2 = parse_ra(row[ra2idx])
-         if str_output and ra2: ra2 = dec2hms(ra2)
-         data[-1].append(ra2)
-      if de2idx is not None:
+         return None, "Error:  failed to parse '{}'".format(row[deidx])
+      if de2idx is not None and row[de2idx]:
          dec2 = parse_dec(row[de2idx])
-         if str_output and dec2: dec2 = dec2dms(dec2)
-         data[-1].append(dec2)
+         if dec2 is None:  
+            #print("failed to parse:",row[de2idx])
+            return None, "Error:  failed to parse '{}'".format(row[de2idx])
+      else:
+         dec2 = None
+
+      if str_output: 
+         dec = dec2dms(dec)
+         if de2idx is not None and dec2 is not None:
+            dec = dec + " \u2014<br/> " + dec2dms(dec2)
+         data[-1].append(dec)
+      else:
+         data[-1].append(dec)
+         if de2idx is not None: 
+            data[-1].append(dec2)
+
       if midx is not None: data[-1].append(row[midx])
       if eidx is not None: 
          if str_output:
