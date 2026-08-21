@@ -11,6 +11,7 @@ from plone.namedfile.field import NamedBlobFile
 from plone.supermodel import model
 from z3c.form.browser.text import TextWidget
 from z3c.form import button
+from z3c.form.interfaces import WidgetActionExecutionError
 from zope.interface import implementer,invariant, Invalid
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five.browser import BrowserView
@@ -163,35 +164,42 @@ class ITargetSchema(model.Schema):
     """Schema for a single target in a target list"""
     name = schema.TextLine(
         title='Target Name',
-        required=True,
+        required=False,
     )
     ra1 = schema.TextLine(
         title='RA',
-        required=True,
-        constraint=validators.validate_RA,
+        required=False,
+        #constraint=validators.validate_RA,
     )
     ra2 = schema.TextLine(
-        title='RA end',
+        title='RA end*',
         required=False,
-        constraint=validators.validate_RA,
+        #constraint=validators.validate_RA,
     )
     dec1 = schema.TextLine(
-        title='Dec',
-        required=True,
-        constraint=validators.validate_DEC,
+        title='Dec (start)',
+        required=False,
+        #constraint=validators.validate_DEC,
     )
     dec2 = schema.TextLine(
-        title='Dec end',
+        title='Dec end*',
         required=False,
-        constraint=validators.validate_DEC,
+        #constraint=validators.validate_DEC,
     )
     mag = schema.TextLine(
         title='Magnitude',
         required=False,
     )
     epoch = schema.TextLine(
-        title='Epoch',
+        title='JD start',
         required=False,
+        #constraint=validators.validate_JD,
+    )
+
+    epoch2 = schema.TextLine(
+        title="JD end",
+        required=False,
+        #constraint=validators.validate_JD,
     )
 
 
@@ -222,7 +230,7 @@ class IProposal(model.Schema):
 
     email = Email(
         title='Email',
-        description='Email adress of the PI',
+        description='Email address of the PI',
         required=True,
     )
 
@@ -247,18 +255,20 @@ class IProposal(model.Schema):
     )
     target_list = NamedBlobFile(
         title='Target List',
-        description='A PDF or CSV file with targets for all projects',
+        description='A PDF or CSV file with targets for all projects (see Help documentation '\
+                    'for sample CSV file).',
         required=False,
         constraint = validators.validate_PDF_or_CSV,
     )
 
     targets = schema.List(
         title="Targets",
-        description="Enter targets manually (if you don't have too many). If you have a "\
-                    "range of RA/DEC, use 'RA' for minimum and 'RA end' for maximum and "\
-                    "likewise for Dec. Magnitude and Epoch are optional. Epoch should be "
-                    " in JD. For large lists," \
-                    "upload a CSV (preferred) or PDF file below.",
+        description="Enter targets manually (if you don't have too many). Only RA and DEC are "\
+                    "required and can be in either decimal degrees or HH:MM:SS.SS for RA, "\
+                    "+DD:MM:SS.SS for DEC. 'JD begin' and 'JD end' are for specific timed "\
+                    "observations (e.g., transits). *If you have a range of RA/DEC, use 'RA' "\
+                    "for minimum and 'RA end' for maximum and "\
+                    "likewise for DEC. For large lists, upload a CSV (preferred) or PDF file below.",
         value_type=DictRow(
             title="Target List",
             schema=ITargetSchema,
@@ -272,7 +282,7 @@ class IProposal(model.Schema):
         title="No Specific Targets",
         description="Check this box if you do not have specific targets, for example "\
                     "because you are requesting ToO time for yet-to-be-discovered objects "\
-                    "or you have targets disributed all across the sky.",
+                    "or you have targets distributed all across the sky.",
         required=False,
     )
 
@@ -594,7 +604,6 @@ class EditForm(DefaultEditForm):
         # Ensure we have a running number for each project:
         for i,proj in enumerate(data['projects']):
             proj['proj_number'] = i+1
-        #print("DATA:",data)
         super().applyChanges(data)
 
 

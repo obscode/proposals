@@ -69,7 +69,7 @@ class ITBDProposal(model.Schema):
 
     email = Email(
         title='Email',
-        description='Email adress of the PI',
+        description='Email address of the PI',
         required=True,
     )
 

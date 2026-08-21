@@ -73,6 +73,7 @@ def parse_csv(reader, str_output=True):
    fidx = None    # field index
    midx = None   # magnitude index
    eidx = None    # epoch index
+   e2idx = None    # epoch index
    for i,field in enumerate(header):
       field = field.lower()
       if field in ['dec','dec1','dec begin','declination','delta','de']:
@@ -90,8 +91,11 @@ def parse_csv(reader, str_output=True):
       elif field in ['field','obj','object','region','name','object name']:
          fidx = i
          continue
-      elif field in ['epoch','date','date-obs']:
+      elif field in ['JD','JD start','epoch','date','date-obs']:
          eidx = i
+         continue
+      elif field in ['JD2','JD end','epoch2','date2','date-obs2']:
+         e2idx = i
          continue
       elif field in ['mag','magnitude']:
          midx = i
@@ -110,7 +114,8 @@ def parse_csv(reader, str_output=True):
    if ra2idx is not None and not str_output:  data[-1].append('RA2')
    if de2idx is not None and not str_output:  data[-1].append('DEC2')
    if midx is not None:  data[-1].append('Mag')
-   if eidx is not None:  data[-1].append('Epoch')
+   if eidx is not None:  data[-1].append('JD1')
+   if e2idx is not None:  data[-1].append('JD2')
    for idx in extras: data[-1].append(header[idx])
 
    # Now for the data
@@ -173,6 +178,16 @@ def parse_csv(reader, str_output=True):
                #print("float didn't float:", row[eidx])
                return None, "Error:  failed to parse {}".format(row[eidx])
          data[-1].append(epoch)
+      if e2idx is not None: 
+         if str_output:
+            epoch2 = row[e2idx]
+         else:
+            try:
+               epoch2 = float(row[e2idx])
+            except:
+               #print("float didn't float:", row[eidx])
+               return None, "Error:  failed to parse {}".format(row[e2idx])
+         data[-1].append(epoch2)
       for idx in extras: data[-1].append(row[idx])
    return data, "Success"
    

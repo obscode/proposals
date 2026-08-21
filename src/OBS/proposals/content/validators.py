@@ -4,6 +4,7 @@ from PyPDF2 import PdfReader
 from io import BytesIO,StringIO
 from .utils import parse_ra,parse_dec,parse_csv
 import csv
+from astropy.time import Time
 
 
 def extra_proposal_validation(data):
@@ -40,6 +41,56 @@ def extra_proposal_validation(data):
       if len(priorities) < len(data.projects):
          valid = False
          messages.append("Each project must have a different priority")
+
+   if data.targets is not None and len(data.targets) > 0:
+      # Make sure at least RA/DEC are set and JD's are consistent
+      for ir,row in enumerate(data.targets):
+         if row['ra1'] is None:
+            valid = False
+            messages.append(f"Target {ir+1} must have RA set in the target list")
+         else:
+            ra1 = parse_ra(row['ra1'])
+            if ra1 is None:
+               valid = False
+               messages.append(f"RA value for target {ir+1} ({row['ra1']}) is not valid")
+         if row['ra2'] is not None:
+            ra2 = parse_ra(row['ra2'])
+            if ra2 is None:
+               valid = False
+               messages.append(f"RA value for target {ir+1} ({row['ra2']}) is not valid")
+         if row['dec1'] is None:
+            valid = False
+            messages.append(f"Target {ir+1} must have DEC set in the target list")
+         else:
+            dec1 = parse_dec(row['dec1'])
+            if dec1 is None:
+               valid = False
+               messages.append(f"DEC value for target {ir+1} ({row['dec1']}) is not valid")
+         if row['dec2'] is not None:
+            dec2 = parse_dec(row['dec2'])
+            if dec2 is None:
+               valid = False
+               messages.append(f"DEC value for target {ir+1} ({row['dec2']}) is not valid")
+         # Make sure that JDstart <= JDend
+         if row['epoch'] is not None:
+            try:
+               jd1 = float(row['epoch'])
+            except:
+               valid = False
+               messages.append(f"JD start for target {ir+1} must be valid number")
+         else:
+            jd1 = None
+         if row['epoch2'] is not None:
+               try:
+                  jd2 = float(row['epoch2'])
+               except:
+                  valid = False
+                  messages.append(f"JD end for target {ir+1} must be valid number")
+         else:
+            jd2 = None
+         if jd1 is not None and jd2 is not None and jd1 > jd2:
+            valid = False
+            messages.append(f"JD start must be before JD end for target {ir+1}")
 
    return valid,"\n".join(messages)
    
@@ -160,5 +211,21 @@ def validate_DEC(value):
    if dec is None:
       raise Invalid(f"DEC {value} is not valid")
    return True
+
+def validate_JD(value):
+   '''Check this is a reasonable JD'''
+   try:
+      val = float(value)
+   except:
+      raise Invalid(f"JD {value} is not a valid number")
+
+   JDnow = Time.now().jd
+   if val < JDnow:
+      raise Invalid(f"JD {value} is in the past")
+   if val > JDnow + 365.0*2:
+      raise Invalid(f"JD {value} is more than 2 years in the future")
+   return True
+
+
 
    
