@@ -16,7 +16,7 @@ long_description = "\n\n".join(
 
 setup(
     name="OBS.proposals",
-    version="1.0a1",
+    version="1.1",
     description="Proposals add-on",
     long_description=long_description,
     # Get more from https://pypi.org/classifiers/

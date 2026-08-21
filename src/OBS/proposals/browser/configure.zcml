@@ -243,4 +243,13 @@
     handler="OBS.proposals.content.upgrades.upgrade_types"
   />
 
+  <genericsetup:upgradeStep
+    title="Reload FTI info and remove phone"
+    description="Reloads teh typinfo profile for handle new fields"
+    source="1001"
+    destination="1002"
+    profile="OBS.prooposals:default"
+    handler="OBS.proposals.content.upgrades.upgrade_phone"
+  />
+
 </configure>
