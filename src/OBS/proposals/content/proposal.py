@@ -497,7 +497,7 @@ class Proposal(Container):
                #fileobj.close()
                # PDF then, nothing to do
                return [],"Error: problem parsing the CSV file."
-        return [], "Error: how did I get here?"
+        return [[]], "Error: No target info entered"
     
     def getTargetCSV(self):
         '''Get the targest list as a CSV based on what's in the proposal'''
