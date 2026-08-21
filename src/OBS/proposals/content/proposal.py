@@ -405,6 +405,11 @@ class Proposal(Container):
 
     def statusMessage(self):
         '''Returns the current status of the proposal'''
+        # First check if it's submitted already
+        wf_state = api.content.get_state(self)
+        if wf_state == "submitted":
+           return "Your proposal has been submitted and can be read by the TAC"
+
         missing = []
         conflict = []
         message = ""
@@ -649,6 +654,54 @@ class View(DefaultView):
     # The following are needed for the simple reason that TAL is limited in
     # what it can do, particularly having python: code produce a string with
     # a single quote in it.
+
+    def buttons(self):
+        '''Generate the buttons at the top of the view'''
+        token = createToken()
+        can_modify = api.user.has_permission("Modify portal content", obj=self.context)
+        buttons = []
+        if can_modify:
+            buttons += [
+            {'name':"Edit",
+             'onclick':"window.location='{}/edit?_authenticator={}'".format(
+                    self.context.absolute_url(), token),
+             'class':"submit-widget btn btn-primary"
+            },{'name':"Share",
+               'onclick':"window.location='{}/@@sharing?_authenticator={}'".format(
+                    self.context.absolute_url(), token),
+               'class':"submit-widget btn btn-secondary"
+            }]
+        buttons.append({'name':"PDF",
+               'onclick':"window.location='{}/@@pdf'".format(
+                    self.context.absolute_url()),
+               'class':"submit-widget btn btn-secondary"
+            })
+        status = self.context.status()
+        if status == "Ready for Submission" and can_modify:
+            buttons.append({'name':"Submit",
+                            'onclick':"window.location='{}/transition?_authenticator={}&transition={}'".format(
+                                self.context.absolute_url(), token,'submit'),
+                            'class':"submit-widget btn btn-success"
+            })
+        elif status == "Submitted" and can_modify:
+            buttons.append({'name':"Retract",
+                            'onclick':"window.location='{}/transition?_authenticator={}&transition={}'".format(
+                                self.context.absolute_url(), token,'retract'),
+                            'class':"submit-widget btn btn-warning"
+            })
+        elif can_modify:
+            buttons.append({'name':"Submit",
+                            'onclick':"''",
+                            'class':"submit-widget btn btn-success disabled"
+            })
+        if can_modify:
+            buttons.append({'name':"Delete",
+                        'onclick':"window.location='{}/delete_confirmation?_authenticator={}'".format(
+                            self.context.absolute_url(), token),
+                        'class':"submit-widget btn btn-danger"
+        })
+        return buttons
+
     def editTag(self):
         return "window.location='{}/edit?_authenticator={}'".format(
            self.context.absolute_url(), createToken())

@@ -13,32 +13,17 @@
       <metal:content-core define-macro="content-core"
               tal:define="status context/statusMessage">
 
-        <div tal:define="token context/@@authenticator/token"> 
-          <button class="submit-widget btn btn-primary" 
-              tal:attributes="onclick view/editTag">
-              Edit
-          </button>
-          <button class="submit-widget btn btn-secondary" 
-              tal:attributes="onclick view/shareTag">
-              Share
-          </button>
-          <button class="submit-widget btn btn-secondary"
-              tal:attributes="onclick string: window.location='${context/absolute_url}/pdf'">
-              PDF
-          </button>
-          <button 
-              tal:attributes="class python: 'submit-widget btn btn-success'+[' disabled',''][status.find('satisfy') >= 0];
-                              onclick view/transitionTag"
-              tal:content="view/transitionLab">
-              Transition
-          </button>
-          <button class="submit-widget btn btn-danger" 
-              tal:attributes="onclick view/deleteTag">
-              Delete
-          </button>
+        <div tal:define="buttons view/buttons"
+             tal:condition="buttons">
+         <button tal:repeat="button buttons"
+                 tal:attributes="name button/name;
+                                 class button/class;
+                                 onclick button/onclick"
+                     tal:content="button/name">
+
         </div>
         <br>
-        <div tal:condition="python: status.find('satisfy') < 0"
+        <div tal:condition="python: status.find('satisfy') < 0 and status.find('submitted') < 0"
            class="row" style="border: 2px solid #f1aeb5 ; background-color: #f8d7da;padding: 2px;">
            <aside class="col-12">
               <div class="portalMessage">
@@ -46,7 +31,7 @@
               </div>
            </aside>
         </div>
-        <div tal:condition="python: status.find('satisfy') > 0"
+        <div tal:condition="python: status.find('satisfy') > 0 or status.find('submitted') > 0"
            class="row" style="border: 2px solid #8cacbb; background-color: #dee7ec;padding: 2px;">
            <aside class="col-12">
               <div class="portalMessage">
