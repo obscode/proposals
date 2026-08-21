@@ -144,7 +144,7 @@
 
         <tal:widget tal:replace="structure view/widgets/conflicts/@@ploneform-render-widget">
 
-        <fieldset tal:repeat="group view/groups|nothing"
+        <fieldset tal:define="group python:view.groups[0]"
                   tal:attributes="
                     id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-');
                   "
@@ -152,6 +152,36 @@
           <legend tal:content="group/label"></legend>
           <tal:block tal:repeat="widget group/widgets/values|nothing">
             <tal:widget tal:replace="structure widget/@@ploneform-render-widget" />
+          </tal:block>
+        </fieldset>
+
+        <fieldset tal:define="group python:view.groups[1]"
+                  tal:attributes="
+                    id python:''.join((group.prefix, 'groups.', group.__name__)).replace('.', '-');
+                  "
+        >
+          <legend tal:content="group/label"></legend>
+          <tal:block tal:define="targlist context/getTargetsList">
+            <span tal:condition="python: len(targlist[0][0]) == 0"
+                  tal:content="python: targlist[1]">No specific targets specified</span>
+            <table tal:define="header python:targlist[0][0];
+                               targets python:targlist[0][1:]"
+                               class="table table-striped table-bordered">
+              <thead>
+                <tr>
+                  <th tal:repeat="head header">
+                    <span tal:content="head"></span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr tal:repeat="target targets">
+                  <td tal:repeat="field target">
+                    <span tal:content="field"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </tal:block>
         </fieldset>
 

@@ -457,13 +457,26 @@ class Proposal(Container):
         format as a list of lists (good for table views)'''
         if self.notargets:
             # Eeasy peasy
-            return []," No specific targets specified"
+            return [[]]," No specific targets specified"
         
         if self.targets is not None:
-            l = [['Name','RA','RA end','DEC','DEC end','Mag','epoch']]
+            if not str_output:
+                l = [['Name','RA start','RA end','DEC start','DEC end','Mag','JD start','JD end']]
+            else:
+                l = [['Name','RA','DEC','Mag','JD start','JD end']]
             for targ in self.targets:
-                l.append([targ['name'],targ['ra1'],targ['ra2'],targ['dec1'],
-                          targ['dec2'],targ['mag'],targ['epoch']])
+                if str_output:
+                    ra = utils.dec2hms(utils.parse_ra(targ['ra1']))
+                    if targ['ra2'] is not None:
+                        ra = ra + " - " + utils.dec2hms(utils.parse_ra(targ['ra2']))
+                    dec = utils.dec2dms(utils.parse_dec(targ['dec1']))
+                    if targ['dec2'] is not None:
+                        dec = dec + " - " + utils.dec2dms(utils.parse_ra(targ['dec2']))
+                    l.append([targ['name'],ra, dec,
+                              targ['mag'],targ['epoch'],targ['epoch2']])
+                else:
+                    l.append([targ['name'],targ['ra1'],targ['ra2'],targ['dec1'],
+                              targ['dec2'],targ['mag'],targ['epoch'],targ['epoch2']])
             return l,"Targets specified manually"
 
         if self.target_list is not None:
