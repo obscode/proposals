@@ -11,7 +11,6 @@
   <metal:description-slot fill-slot="formtop">
     <script type="text/javascript" src="/++plone++OBS.proposals/datagridhacks.js"></script>
     <script type="text/javascript" src="/++plone++OBS.proposals/next_prev.js"></script>
-    <H1>Edit Proposal</H1>
   </metal:description-slot>
   <metal:fields-slot fill-slot="fields">
     <input name="fieldset" type="hidden"
@@ -29,6 +28,7 @@
                 id string:fieldsetlegend-default;
               "
       >Form name</legend>
+       <H3>General Info</H3>
        <P>Required fields are marked with a red dot.</P>
        <table>
          <tr>
@@ -102,6 +102,9 @@
                   "
                 i18n:translate=""
         >Form name</legend>
+        <H3 tal:condition="group/label"
+            tal:content="group/label">
+            Field Label</H3>
 
         <p tal:define="
                        group_description group/description|nothing;

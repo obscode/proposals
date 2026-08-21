@@ -20,6 +20,7 @@
                 id string:fieldsetlegend-default;
               "
       >Form name</legend>
+      <h3>General Info</h3>
        <table>
          <tr>
            <td  style="padding-right:  50px; vertical-align: top;"
@@ -90,13 +91,13 @@
                   "
                 i18n:translate=""
         >Form name</legend>
-        <h2 tal:condition="fieldset_label"
+        <h3 tal:condition="fieldset_label"
                 tal:content="fieldset_label"
                 tal:attributes="
                   id string:fieldsetlegend-${fieldset_name};
                   "
                 i18n:translate=""
-        >Form name</h2>
+        >Form name</h3>
 
         <p tal:define="
                        group_description group/description|nothing;
