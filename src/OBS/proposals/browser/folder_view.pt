@@ -131,12 +131,17 @@
                                  tal:condition="python: repeat.proj.start and repeat.run.start">department</span> </td>
                       <td> <span tal:content="run/project"
                                  tal:condition="repeat/run/start">1</span> </td>
-                      <td> <span tal:content="python: run['preferred']+'('+run['moon']+')'">D01(0)</span></td>
-                      <td> <span tal:content="run/telescope">Baade</span></td>
-                      <td> <span tal:content="python: run['inst1'].split(':')[1]"
-                                 tal:condition="run/inst1">IMACS</span></td>
-                      <td> <span tal:content="python: run['inst2'].split(':')[1]"
-                                 tal:condition="run/inst2">FIRE</span></td>
+                      <td> <a tal:attributes="href python:context.absolute_url()+'?run='+run['preferred']"
+                              tal:content="python: run['preferred']+'('+run['moon']+')'">D01(0)</a></td>
+                      <td> <a  tal:attributes="href python:context.absolute_url()+'?telescope='+run['telescope']" 
+                               tal:content="run/telescope">Baade</a></td>
+                      <td> <a tal:condition="python: run['inst1'] and run['inst1'].split(':')[1] != '--'"
+                              tal:attributes="href python:context.absolute_url()+'?instrument='+run['inst1'].split(':')[1]"
+                              tal:content="python: run['inst1'].split(':')[1]"
+                                 >IMACS</a></td>
+                      <td> <a tal:condition="python: run['inst2'] and run['inst2'].split(':')[1] != '--'"
+                              tal:attributes="href python:context.absolute_url()+'?instrument='+run['inst2'].split(':')[1]"
+                              tal:content="python: run['inst2'].split(':')[1]" >FIRE</a></td>
                       <td> <span tal:content="run/service">No</span></td>
                       <td> <span tal:content="run/in_person">No</span></td>
                       <td> <span tal:content="run/nights">No</span></td>

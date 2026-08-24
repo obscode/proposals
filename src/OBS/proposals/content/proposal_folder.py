@@ -58,7 +58,6 @@ class AddForm(DefaultAddForm):
 
         # Create object the usual way
         obj = super().create(data)
-        print("Object ID:", fname)
         obj.id = fname
         return obj
 
@@ -73,6 +72,10 @@ class View(BrowserView):
         """Return all proposals on the site with given semesters"""
         semester = self.context.semester
         TBD = self.context.is_tbd
+
+        run = self.request.form.get('run',None)
+        telescope = self.request.form.get('telescope',None)
+        instrument = self.request.form.get('instrument',None)
 
         # Check if user is a Manager
         if "Manager" in api.user.get_roles():
@@ -91,6 +94,32 @@ class View(BrowserView):
                brains = api.content.find(
                    portal_type='proposal', semester=semester,
                    review_state="submitted")
+
+        if run is not None or telescope is not None or instrument is not None:
+            filtered = []
+            objs = [brain.getObject() for brain in brains]
+
+            for brain in brains:
+                obj = brain.getObject()
+                include = False
+                if not obj.runs: continue
+                for r in obj.runs:
+                    if run is not None and r['preferred'] == run:
+                        include=True
+                        break
+                    if telescope is not None and r['telescope'] == telescope:
+                        include = True
+                        break
+                    if instrument is not None:
+                        if r['inst1'] and r['inst1'].find(instrument) >= 0:
+                            include = True
+                            break
+                        if r['inst2'] and r['inst2'].find(instrument) >= 0:
+                            include = True
+                            break
+                if include:  filtered.append(brain)
+            return filtered
+            
         return brains
 
 
