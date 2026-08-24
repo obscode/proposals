@@ -73,12 +73,24 @@ class View(BrowserView):
         """Return all proposals on the site with given semesters"""
         semester = self.context.semester
         TBD = self.context.is_tbd
-        if TBD:
-           brains = api.content.find(
-               portal_type='TBDproposal', semester=semester)
+
+        # Check if user is a Manager
+        if "Manager" in api.user.get_roles():
+            if TBD:
+               brains = api.content.find(
+                   portal_type='TBDproposal', semester=semester)
+            else:
+               brains = api.content.find(
+                   portal_type='proposal', semester=semester)
         else:
-           brains = api.content.find(
-               portal_type='proposal', semester=semester)
+            if TBD:
+               brains = api.content.find(
+                   portal_type='TBDproposal', semester=semester,
+                   review_state="submitted")
+            else:
+               brains = api.content.find(
+                   portal_type='proposal', semester=semester,
+                   review_state="submitted")
         return brains
 
 
