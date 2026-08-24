@@ -379,12 +379,13 @@ def generate_targ(targets):
    
    getkey = lambda dict,key: (key in dict and str(dict[key])) or ("")
    
-   tstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=16, leading=16)
+   tstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=16, leading=16,
+                          spaceAfter=15)
    kstyle = ParagraphStyle( name='Title', fontName='Times-Bold', fontSize=fontSize, leading=16)
    istyle = ParagraphStyle( name='Item', fontName='Courier', fontSize=fontSize, leading=fontSize)
    items.append(Paragraph("Targets<br/>", tstyle))
 
-   if not targets:
+   if len(targets) == 1 and len(targets[0]) == 0:
       items.append(Paragraph("This proposal has no specific targets", kstyle))
       cover.build(items)
       return report.getvalue()
@@ -417,6 +418,6 @@ def generate_targ(targets):
       itemTargets.hAlign = "LEFT"
       itemTargets.spaceBefore = 0.5*fontSize
    
-   items.append( itemTargets )
+      items.append( itemTargets )
    cover.build(items)
    return report.getvalue()
