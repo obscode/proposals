@@ -293,7 +293,7 @@ class CustomEventListView(EventListing):
       data ={ 
          'datestr':datestr,
          'sunset':sunset.strftime(form) + LSTtoStr(lst_set),
-         'sunrise':sunset.strftime(form) + LSTtoStr(lst_rise),
+         'sunrise':sunrise.strftime(form) + LSTtoStr(lst_rise),
          'midpoint':midPoint.strftime(form) + LSTtoStr(lst_mid),
          'twiend':twilight_end.strftime(form) + LSTtoStr(lst_end),
          'twibeg':twilight_begin.strftime(form) + LSTtoStr(lst_beg),
@@ -317,7 +317,7 @@ class CreateRunEvents(BrowserView):
       tz = pytz.timezone(tzname)
       
       for block in blocks:
-         DL = {"D":"Dark","L":"Ligh"}
+         DL = {"D":"Dark","L":"Light"}
          run_name = "{}_{}".format(block[0],year)
          if run_name.lower() in container:
             api.content.delete(obj=container[run_name.lower()])
@@ -341,3 +341,4 @@ class CreateRunEvents(BrowserView):
          api.content.transition(obj=evt, transition='publish')
       messages.add(u"{} Events generated.".format(len(blocks)), type="info")
       return self.request.response.redirect(self.context.absolute_url())
+
