@@ -146,9 +146,15 @@
                   "
         >
           <legend tal:content="group/label"></legend>
-          <tal:block tal:define="targlist context/getTargetsList">
+          <span tal:condition="context/notargets">No targets specified</span>
+          <tal:targetfile tal:condition="context/target_list"
+                          tal:define="widget python:group.widgets['target_list']">
+             <tal:widget tal:replace="structure widget/@@ploneform-render-widget">
+          </tal:targetfile>
+          <tal:keep tal:replace="nothing">
+            <tal:block tal:define="targlist context/getTargetsList">
             <span tal:condition="python: len(targlist[0][0]) == 0"
-                  tal:content="python: targlist[1]">No specific targets specified</span>
+                  tal:content="python: targlist[1]">No targets specified</span>
             <table tal:define="header python:targlist[0][0];
                                targets python:targlist[0][1:]"
                                class="table table-striped table-bordered">
@@ -167,7 +173,8 @@
                 </tr>
               </tbody>
             </table>
-          </tal:block>
+            </tal:block>
+          </tal:keep>
         </fieldset>
 
       </metal:content-core>

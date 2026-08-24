@@ -151,7 +151,7 @@ class ITOORequestSchema(model.Schema):
          vocabulary=NUMBERS,
          default='1',
     )
-    hours = schema.TextLine(
+    hours = schema.Float(
          title='Hours',
          required=True,
     )
@@ -277,6 +277,7 @@ class IProposal(model.Schema):
     )
     directives.widget("targets", DataGridFieldFactory,
                      auto_append=False)
+    directives.omitted("targets")
 
     notargets = schema.Bool(
         title="No Specific Targets",
@@ -496,7 +497,7 @@ class Proposal(Container):
             except:
                #fileobj.close()
                # PDF then, nothing to do
-               return [],"Error: problem parsing the CSV file."
+               return [[]],"Probably a PDF"
         return [[]], "Error: No target info entered"
     
     def getTargetCSV(self):
@@ -516,7 +517,7 @@ class Proposal(Container):
     def getTargetPDF(self):
         '''Get a PDF of the targets based on what's in the proposal'''
         l,message = self.getTargetsList()
-        if self.target_list is not None and len(l) == 0:
+        if self.target_list is not None and len(l) == 1 and len(l[0]) == 0:
             # Must be a PDF
             return self.target_list.data
 
