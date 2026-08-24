@@ -401,23 +401,23 @@ def generate_targ(targets):
    for row in targets[1:]:
       elements.append([Paragraph(str(field), istyle) for field in row])
    
-      itemTargets = Table(elements)
-      itemTargets.setStyle(TableStyle([
-            ('GRID',(0,0),(-1,-1),0.25,colors.black,),
-            ('BOX',(0,0),(-1,-1),0.25,colors.black,),
-            ('LINEABOVE',(0,0),(-1,-1),0.25,colors.black,),
-            ('LINEBELOW',(0,0),(-1,-1),0.25,colors.black,),
-            ('RIGHTPADDING',(0,0),(-1,-1),0,),
-            ('VALIGN',(0,0),(-1,-1),'TOP',),
-            ]))
-      # Set field, RA, DEC of fixed width, then divy up the rest
-      for j in range(3):
-         itemTargets._argW[j] = 1.2*inch
-      for j in range(len(msizes)):
-         itemTargets._argW[j+3] = msizes[j]/tsize*3.4*inch
-      itemTargets.hAlign = "LEFT"
-      itemTargets.spaceBefore = 0.5*fontSize
+   itemTargets = Table(elements)
+   itemTargets.setStyle(TableStyle([
+         ('GRID',(0,0),(-1,-1),0.25,colors.black,),
+         ('BOX',(0,0),(-1,-1),0.25,colors.black,),
+         ('LINEABOVE',(0,0),(-1,-1),0.25,colors.black,),
+         ('LINEBELOW',(0,0),(-1,-1),0.25,colors.black,),
+         ('RIGHTPADDING',(0,0),(-1,-1),0,),
+         ('VALIGN',(0,0),(-1,-1),'TOP',),
+         ]))
+   # Set field, RA, DEC of fixed width, then divy up the rest
+   for j in range(3):
+      itemTargets._argW[j] = 1.2*inch
+   for j in range(len(msizes)):
+      itemTargets._argW[j+3] = msizes[j]/tsize*3.4*inch
+   itemTargets.hAlign = "LEFT"
+   itemTargets.spaceBefore = 0.5*fontSize
    
-      items.append( itemTargets )
+   items.append( itemTargets )
    cover.build(items)
    return report.getvalue()
