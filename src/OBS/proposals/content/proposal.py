@@ -13,6 +13,7 @@ from z3c.form.browser.text import TextWidget
 from z3c.form import button
 from z3c.form.interfaces import WidgetActionExecutionError
 from zope.interface import implementer,invariant, Invalid
+from zope.schema.interfaces import IContextAwareDefaultFactory
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.Five.browser import BrowserView
 from Products.CMFPlone.resources import add_resource_on_request
@@ -202,6 +203,28 @@ class ITargetSchema(model.Schema):
         #constraint=validators.validate_JD,
     )
 
+#@provider(IContextAwareDefaultFactory)
+def default_name():
+    '''Provide a default name to the PI_name. Use the user name'''
+    user = api.user.get_current()
+    name = user.getProperty('fullname')
+    return name
+
+def default_dept():
+    '''Provide a default value for Department. Get it from location field,
+    which is populated with our Authenticate add-on'''
+    user = api.user.get_current()
+    dept = user.getProperty('location')
+    return dept
+
+def default_email():
+    '''Provide a default value for email. Get from member data'''
+    user = api.user.get_current()
+    email = user.getProperty('email')
+    return email
+
+
+
 
 
 class IProposal(model.Schema):
@@ -221,17 +244,20 @@ class IProposal(model.Schema):
         title='Name',
         description='The lead investigator on the observing proposal',
         required=True,
+        defaultFactory=default_name,
     )
     department = schema.TextLine(
         title='Department',
         description='Institution and/or department',
-        required=True
+        required=True,
+        defaultFactory=default_dept,
     )
 
     email = Email(
         title='Email',
         description='Email address of the PI',
         required=True,
+        defaultFactory=default_email,
     )
 
     conflicts = schema.Text(
