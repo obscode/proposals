@@ -14,6 +14,7 @@
   <!--<includeDependencies package="." />-->
 
   <include package=".browser" />
+  <include package=".content" />
 
   <include file="permissions.zcml" />
 
@@ -39,6 +40,34 @@
       factory=".setuphandlers.HiddenProfiles"
       name="OBS.proposals-hiddenprofiles"
       />
+
+  <!-- Upgrades -->
+  <genericsetup:upgradeStep
+    title="Reload FTI info"
+    description="Reloads teh typinfo profile for handle new fields"
+    source="1000"
+    destination="1001"
+    profile="OBS.prooposals:default"
+    handler="OBS.proposals.content.upgrades.upgrade_types"
+  />
+
+  <genericsetup:upgradeStep
+    title="Reload FTI info and remove phone"
+    description="Reloads teh typinfo profile for handle new fields"
+    source="1001"
+    destination="1002"
+    profile="OBS.prooposals:default"
+    handler="OBS.proposals.content.upgrades.upgrade_phone"
+  />
+
+  <genericsetup:upgradeStep
+    title="Reload FTI info and remove phone"
+    description="Reloads teh typinfo profile for handle new fields"
+    source="1002"
+    destination="1003"
+    profile="OBS.prooposals:default"
+    handler="OBS.proposals.content.upgrades.upgrade_hours"
+  />
 
   <!-- -*- extra stuff goes here -*- -->
 

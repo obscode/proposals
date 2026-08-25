@@ -33,3 +33,27 @@ def upgrade_phone(context):
         if hasattr(obj, 'teleophone'):
             delattr(obj, 'telephone')
             obj._p_changed = True
+
+                
+def upgrade_hours(context):
+    # Reload type definitions from profiles/default/types/...
+    setup = context.portal_setup
+    setup.runImportStepFromProfile("OBS.proposals:default", "typeinfo")
+    
+    # Clean up old telephoneattributes from existing content objects in the ZODB
+    portal = api.portal.get()
+    catalog = portal.portal_catalog
+
+    brains = catalog(portal_type='proposal')
+    for brain in brains:
+        obj = brain.getObject()
+        if obj.too:
+            for too in obj.too:
+                try:
+                    too.hours = float(too.hours)
+                except:
+                    too.hours = 0.0
+            obj._p_changed = True
+            
+
+                

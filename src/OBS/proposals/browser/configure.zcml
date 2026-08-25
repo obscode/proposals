@@ -27,89 +27,6 @@
       layer="OBS.proposals.interfaces.IObsProposalsLayer"
       />
 
-  <!-- Custom view pages -->
-  <browser:page
-      for="OBS.proposals.content.proposal.IProposal"
-      name="view"
-      class="OBS.proposals.content.proposal.View"
-      permission="zope2.View"
-      template="view.pt"
-      />
-  
-  <browser:page
-      for="OBS.proposals.content.TBDproposal.ITBDProposal"
-      name="view"
-      class="OBS.proposals.content.TBDproposal.View"
-      permission="zope2.View"
-      template="TBDview.pt"
-      />
-  
-  <browser:page
-      for="OBS.proposals.content.proposal_folder.IProposalFolder"
-      name="view"
-      class="OBS.proposals.content.proposal_folder.View"
-      permission="zope2.View"
-      template="folder_view.pt"
-      />
-
-  <browser:page
-    name="pdf"
-    for="OBS.proposals.content.proposal.IProposal"
-    class="OBS.proposals.content.proposal.PDFView"
-    permission="zope2.View"
-    />
-
-  <browser:page
-    name="pdf"
-    for="OBS.proposals.content.TBDproposal.ITBDProposal"
-    class="OBS.proposals.content.TBDproposal.PDFView"
-    permission="zope2.View"
-    />
-
-  <browser:page
-    name="generate_tgz"
-    for="OBS.proposals.content.proposal_folder.IProposalFolder"
-    class="OBS.proposals.content.proposal_folder.TGZView"
-    permission="cmf.ModifyPortalContent"
-    />
-
-  <browser:page
-    name="generate_targ"
-    for="OBS.proposals.content.proposal_folder.IProposalFolder"
-    class="OBS.proposals.content.proposal_folder.TargView"
-    permission="cmf.ModifyPortalContent"
-    />
-
-  <!-- Custom transition -->
-  <browser:page
-      name="transition"
-      for="OBS.proposals.content.proposal.IProposal"
-      class="OBS.proposals.content.proposal.TransitionView"
-      permission="cmf.ModifyPortalContent"
-      />
-
-  <browser:page
-      name="transition"
-      for="OBS.proposals.content.TBDproposal.ITBDProposal"
-      class="OBS.proposals.content.TBDproposal.TransitionView"
-      permission="cmf.ModifyPortalContent"
-      />
-
-  <!-- Custom edit page -->
-  <browser:page
-      for="OBS.proposals.content.proposal.IProposal"
-      name="edit"
-      class="OBS.proposals.content.proposal.EditForm"
-      permission="cmf.ModifyPortalContent"
-      />
-
-  <browser:page
-      for="OBS.proposals.content.TBDproposal.ITBDProposal"
-      name="edit"
-      class="OBS.proposals.content.TBDproposal.EditForm"
-      permission="cmf.ModifyPortalContent"
-      />
-
   <!-- Custom Member folder view -->
   <browser:page
         name="custom-member-area-view"
@@ -125,79 +42,15 @@
           zope.lifecycleevent.interfaces.IObjectAddedEvent"
      handler=".subscribers.set_member_area_default_view" />
 
-  <!-- Custom Add for proposals -->
-  <adapter
-      for="Products.CMFCore.interfaces.IFolderish
-         zope.publisher.interfaces.browser.IDefaultBrowserLayer
-         plone.dexterity.interfaces.IDexterityFTI"
-      provides="zope.publisher.interfaces.browser.IBrowserPage"
-      factory="OBS.proposals.content.proposal.AddView"
-      name="proposal"
-    />
-  <class class="OBS.proposals.content.proposal.AddView">
-    <require
-        permission="cmf.AddPortalContent"
-        interface="zope.publisher.interfaces.browser.IBrowserPage"
-        />
-  </class>"
-  
-  <adapter
-      for="Products.CMFCore.interfaces.IFolderish
-         zope.publisher.interfaces.browser.IDefaultBrowserLayer
-         plone.dexterity.interfaces.IDexterityFTI"
-      provides="zope.publisher.interfaces.browser.IBrowserPage"
-      factory="OBS.proposals.content.TBDproposal.AddView"
-      name="TBDproposal"
-    />
-  <class class="OBS.proposals.content.TBDproposal.AddView">
-    <require
-        permission="cmf.AddPortalContent"
-        interface="zope.publisher.interfaces.browser.IBrowserPage"
-        />
-  </class>"
-  
-  <adapter
-      for="Products.CMFCore.interfaces.IFolderish
-         zope.publisher.interfaces.browser.IDefaultBrowserLayer
-         plone.dexterity.interfaces.IDexterityFTI"
-      provides="zope.publisher.interfaces.browser.IBrowserPage"
-      factory="OBS.proposals.content.proposal_folder.AddView"
-      name="proposal_folder"
-    />
-  <class class="OBS.proposals.content.proposal_folder.AddView">
-    <require
-        permission="cmf.AddPortalContent"
-        interface="zope.publisher.interfaces.browser.IBrowserPage"
-        />
-  </class>"
-
   <adapter
      factory="OBS.proposals.browser.adapters.ForceHomeFolderRedirect"
      for="Products.CMFPlone.interfaces.IPloneSiteRoot
           OBS.proposals.interfaces.IObsProposalsLayer"/>
 
-
   <adapter
       factory="OBS.proposals.browser.controlpanel.ProposalsRegistryConfigletPanel"
       name="proposals-controlpanel" />
 
-  <utility
-      name="proposals.RUNS"
-      component="OBS.proposals.content.vocabularies.RUNS"/>
-  <utility
-      name="proposals.MOONPHASES"
-      component="OBS.proposals.content.vocabularies.MOONPHASES"/>
-  <utility
-      name="proposals.TELESCOPES"
-      component="OBS.proposals.content.vocabularies.TELESCOPES"/>
-  <utility
-      name="proposals.INSTRUMENTS"
-      component="OBS.proposals.content.vocabularies.INSTRUMENTS"/>
-  <utility
-      name="proposals.SERVICE"
-      component="OBS.proposals.content.vocabularies.SERVICE"/>
-
-  
   <!-- Override the default calendar portlet renderer -->
   <plone:portletRenderer
     portlet="plone.app.event.portlets.portlet_calendar.ICalendarPortlet"
@@ -233,23 +86,5 @@
     />
 
 
-  <!-- Upgrades -->
-  <genericsetup:upgradeStep
-    title="Reload FTI info"
-    description="Reloads teh typinfo profile for handle new fields"
-    source="1000"
-    destination="1001"
-    profile="OBS.prooposals:default"
-    handler="OBS.proposals.content.upgrades.upgrade_types"
-  />
-
-  <genericsetup:upgradeStep
-    title="Reload FTI info and remove phone"
-    description="Reloads teh typinfo profile for handle new fields"
-    source="1001"
-    destination="1002"
-    profile="OBS.prooposals:default"
-    handler="OBS.proposals.content.upgrades.upgrade_phone"
-  />
 
 </configure>

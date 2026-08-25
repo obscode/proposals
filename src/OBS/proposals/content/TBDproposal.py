@@ -154,7 +154,7 @@ def noExistingProposal(form):
 
 class AddForm(DefaultAddForm):
 
-    template = ViewPageTemplateFile('myTBDadd.pt')
+    template = ViewPageTemplateFile('templates/myTBDadd.pt')
 
     def update(self):
         super().update()
@@ -215,7 +215,7 @@ class AddView(DefaultAddView):
 
 class EditForm(DefaultEditForm):
 
-    template = ViewPageTemplateFile('myTBDedit.pt')
+    template = ViewPageTemplateFile('templates/myTBDedit.pt')
     enable_form_tabbing = True
 
     def update(self):
