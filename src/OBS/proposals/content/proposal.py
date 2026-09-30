@@ -67,7 +67,7 @@ class IObservingRunSchema(model.Schema):
       #default='--'
    )
 
-   nights = schema.Int(
+   nights = schema.Float(
       title='Nights',
       required=True,
    )
