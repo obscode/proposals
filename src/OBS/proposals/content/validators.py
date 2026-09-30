@@ -23,18 +23,22 @@ def extra_proposal_validation(data):
             valid = False
             messages.append("One cannot request service observing with M2FS")
          # check that "preferred" is between begin and end. Note that we assume
-         # the runs vocabulary is ordered by date!
-         pref_idx = RUNS.index(run['preferred'])
-         from_idx = RUNS.index(run['fromblock'])
-         to_idx = RUNS.index(run['toblock'])
-         if not from_idx <= to_idx:
-            messages.append(f"The 'from' block for run {ridx+1} should not be after the"
-                            " 'to' block.")
-            valid = False
-         if not from_idx <= pref_idx <= to_idx:
-            messages.append(f"The 'preferred' block for run {ridx+1} should be "\
-                            "between the 'from' and 'to' blocks.")
-            valid = False
+         # the runs vocabulary is ordered by date! Plus, we can only check
+         # this if it's the current semester, so verify blocks are in the 
+         # RUNS vocab.
+         if run['preferred'] in RUNS and run['fromblock'] in RUNS \
+            and run['toblock'] in RUNS:
+            pref_idx = RUNS.index(run['preferred'])
+            from_idx = RUNS.index(run['fromblock'])
+            to_idx = RUNS.index(run['toblock'])
+            if not from_idx <= to_idx:
+               messages.append(f"The 'from' block for run {ridx+1} should not be after the"
+                               " 'to' block.")
+               valid = False
+            if not from_idx <= pref_idx <= to_idx:
+               messages.append(f"The 'preferred' block for run {ridx+1} should be "\
+                               "between the 'from' and 'to' blocks.")
+               valid = False
 
    if data.projects is not None and len(data.projects) > 1:
       priorities = set([proj['priority'] for proj in data.projects])
