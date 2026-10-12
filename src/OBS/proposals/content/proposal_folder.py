@@ -95,12 +95,13 @@ class View(BrowserView):
                    portal_type='proposal', semester=semester,
                    review_state="submitted")
 
+        objs = [brain.getObject() for brain in brains]
+        objs = sorted(objs, key=lambda x:x.pi_name.split()[-1])
         if run is not None or telescope is not None or instrument is not None:
             filtered = []
-            objs = [brain.getObject() for brain in brains]
 
-            for brain in brains:
-                obj = brain.getObject()
+            for obj in objs:
+                #obj = brain.getObject()
                 include = False
                 if not obj.runs: continue
                 for r in obj.runs:
@@ -117,10 +118,10 @@ class View(BrowserView):
                         if r['inst2'] and r['inst2'].find(instrument) >= 0:
                             include = True
                             break
-                if include:  filtered.append(brain)
+                if include:  filtered.append(obj)
             return filtered
             
-        return brains
+        return objs
 
 
 class TGZView(BrowserView):

@@ -128,8 +128,12 @@ def generate_pdf(self):
             itemRuns.spaceBefore = 0.5*fontSize
    
          if self.too:
-            jtoos = [jtoo for jtoo,too in enumerate(self.too) if 'project' in too and too['project'] == str(jp+1)]
-            toos = [too for jtoo,too in enumerate(self.too) if 'project' in too and too['project'] == str(jp+1)]
+            jtoos = [jtoo for jtoo,too in enumerate(self.too) \
+                     if 'project' in too and too['project'] == str(jp+1) \
+                     and too['hours'] > 0]
+            toos = [too for jtoo,too in enumerate(self.too) \
+                     if 'project' in too and too['project'] == str(jp+1) \
+                     and too['hours'] > 0]
             #print('********',toos)
    
             if toos:

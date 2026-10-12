@@ -77,10 +77,9 @@
                 </tr>
             </thead>
             <tbody>
-              <tal:block tal:repeat="brain results">
-              <tal:define define="item python: brain.getObject();
-                                 url brain/getURL;
-                                 state brain/review_state">
+              <tal:block tal:repeat="item results">
+              <tal:define define="url item/absolute_url;
+                                 state item/review_state">
                 <tal:noprojects tal:condition="not: item/projects">
                   <tr>
                       <td> <span tal:content="item/pi_name">Name</span></td>
@@ -180,10 +179,9 @@
                 </tr>
             </thead>
             <tbody>
-              <tr tal:repeat="brain results">
-                 <tal:define define="item python: brain.getObject();
-                             url brain/getURL;
-                             state brain/review_state">
+              <tr tal:repeat="item results">
+                 <tal:define define="url item/absolute_url;;
+                             state item/review_state">
                     <!-- Title with clickable link to the item -->
                     <td> <span tal:content="item/pi_name">Name</span> </td>
                     <td>
