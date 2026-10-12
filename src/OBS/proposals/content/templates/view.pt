@@ -44,7 +44,8 @@
           <table class="table proposals">
             <tr>
               <td width=200><strong>Semester:</strong></td>
-              <td colspan=3>2026A</td>
+              <td colspan=3
+                  tal:content="view/semester">2026A</td>
             </tr>
             <tr>
               <td><strong>Principal Investigator:</strong></td>

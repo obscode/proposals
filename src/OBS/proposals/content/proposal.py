@@ -381,7 +381,7 @@ class Proposal(Container):
                           if run['project'] == str(projnum)]
         if self.too is not None:
            for too in self.too:
-              if too['project'] == str(projnum):
+              if too['project'] == str(projnum) and too['hours'] > 0:
                  runs.append(dict(project=str(projnum), preferred='ToO', 
                          fromblock='ToO', toblock='ToO', 
                          nights="{:.2f}".format(float(too['hours'])/24), 
@@ -479,6 +479,11 @@ class Proposal(Container):
            return "Ready for Submission"
         else:
             return "Incomplete"
+
+    def review_state(self):
+        '''Returns portal workflow state'''
+        wf_state = api.content.get_state(self)
+        return wf_state
 
     def Title(self):
         '''Returns an appropriate title'''
@@ -663,6 +668,10 @@ class View(DefaultView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
     
+    def semester(self):
+        '''Get the correct semester from the registry'''
+        return api.portal.get_registry_record("proposals.semester")
+
     def update(self):
         # Disable the menu bar
         #self.request.set('disable_border', True)
