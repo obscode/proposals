@@ -50,6 +50,7 @@
     </tal:tgz>
     <br>
     <div tal:define="results view/get_items">
+        <P>Listing <span tal:replace="python: len(results)">X</span> proposals</P>
         <!-- Display message if the collection is empty -->
         <div class="portalMessage info" tal:condition="not: results">
             <p i18n:translate="">No items match this collection's criteria.</p>
