@@ -131,6 +131,7 @@ class TGZView(BrowserView):
         messages = IStatusMessage(self.request)
         semester = self.context.semester
         tid = self.context.id+".tgz"
+        fid = self.context.id
 
         # All proposals for this semester
         if self.context.is_tbd:
@@ -179,7 +180,7 @@ class TGZView(BrowserView):
                     # Create a file-like object for the PDF
                     pdf_file = BytesIO(pdf)
                     # Create a TarInfo object for the PDF file
-                    tarinfo = TarInfo(name=f"{tid}/{pdfname}")
+                    tarinfo = TarInfo(name=f"{fid}/{pdfname}")
                     tarinfo.size = len(pdf)
                     tarinfo.mtime = proposal.modified()
                     # Add the PDF file to the tar archive
